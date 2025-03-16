@@ -1,3 +1,4 @@
+import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/views/pages/how_to_page.dart';
 import 'package:bang_bang/views/pages/play_page.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +18,10 @@ class LandingPage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(20),
               child: Center(
-                child: Text('BANG BANG', style: TextStyle(fontSize: 30)),
+                child: Text('BANG BANG', style: KTextStyle.heading1),
               ),
             ),
+            SizedBox(height: 60),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).push(
@@ -30,8 +32,9 @@ class LandingPage extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('PLAY'),
+              child: Text('PLAY', style: KTextStyle.heading2),
             ),
+            SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).push(
@@ -42,7 +45,7 @@ class LandingPage extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('HOW TO'),
+              child: Text('HOW TO', style: KTextStyle.heading4),
             ),
           ],
         ),

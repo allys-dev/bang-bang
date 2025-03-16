@@ -5,8 +5,6 @@ class Test2Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text("TEST PAGE 2"),
-    );
+    return Center(child: Text("TEST PAGE 2"));
   }
 }

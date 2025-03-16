@@ -1,3 +1,4 @@
+import 'package:bang_bang/data/constants.dart';
 import 'package:flutter/material.dart';
 
 class HowToPage extends StatefulWidget {
@@ -145,11 +146,19 @@ class HowToPage1 extends StatelessWidget {
         padding: const EdgeInsets.all(50),
         child: Column(
           children: [
-            Text('How to Play', style: TextStyle(fontSize: 30)),
-            Text('You need 4 or more friends to start a game'),
-            Text('All players must download the app'),
+            Text('How to Play', style: KTextStyle.heading1),
+            SizedBox(height: 50),
+            Text(
+              'You need 4 or more friends to start a game',
+              style: KTextStyle.heading4,
+            ),
+            Text(
+              'All players must download the app',
+              style: KTextStyle.heading4,
+            ),
             Text(
               'Follow the prompts on the app to start a game. One the \'Get Ready\' page, enter your name, an everyday object(e.g. a drink, a spoon, a newspaper) and location (e.g. the kitchen, the lounge room, the beach).',
+              style: KTextStyle.heading4,
             ),
           ],
         ),
@@ -169,10 +178,20 @@ class HowToPage2 extends StatelessWidget {
         padding: const EdgeInsets.all(50),
         child: Column(
           children: [
-            Text('How to Play', style: TextStyle(fontSize: 30)),
-            Text('The game is played in person between friends'),
-            Text('Each player is given a secret mission'),
-            Text('The aim of the game is to kill the most players'),
+            Text('How to Play', style: KTextStyle.heading1),
+            SizedBox(height: 50),
+            Text(
+              'The game is played in person between friends',
+              style: KTextStyle.heading4,
+            ),
+            Text(
+              'Each player is given a secret mission',
+              style: KTextStyle.heading4,
+            ),
+            Text(
+              'The aim of the game is to kill the most players',
+              style: KTextStyle.heading4,
+            ),
           ],
         ),
       ),
@@ -191,10 +210,15 @@ class HowToPage3 extends StatelessWidget {
         padding: const EdgeInsets.all(50),
         child: Column(
           children: [
-            Text('How to Kill', style: TextStyle(fontSize: 30)),
-            Text('A successful kill has four elements'),
+            Text('How to Kill', style: KTextStyle.heading1),
+            SizedBox(height: 50),
+            Text(
+              'A successful kill has four elements',
+              style: KTextStyle.heading4,
+            ),
             Text(
               '1. When you\'re at the correct location, you must hand your target the everyday object',
+              style: KTextStyle.heading4,
             ),
           ],
         ),
@@ -214,9 +238,11 @@ class HowToPage4 extends StatelessWidget {
         padding: const EdgeInsets.all(50),
         child: Column(
           children: [
-            Text('How to Kill', style: TextStyle(fontSize: 30)),
+            Text('How to Kill', style: KTextStyle.heading1),
+            SizedBox(height: 50),
             Text(
               '2. You must whisper \'Bang Bang You\'re Dead\' to the target to complete the kill. Make sure you\'re sneaky. If another player hears you attempting a kill, they can hit the "Overheard a Kill" button in the app and you and the target will be eliminated and the eavesdropper will get an extra target.',
+              style: KTextStyle.heading4,
             ),
           ],
         ),
@@ -236,9 +262,11 @@ class HowToPage5 extends StatelessWidget {
         padding: const EdgeInsets.all(50),
         child: Column(
           children: [
-            Text('How to Kill', style: TextStyle(fontSize: 30)),
+            Text('How to Kill', style: KTextStyle.heading1),
+            SizedBox(height: 50),
             Text(
               '3. Once the kill is completed. You hit \'Eliminate\' on your mission screen and the target will receive a notification to confirm the kill. But, play it cool, and keep it secret.',
+              style: KTextStyle.heading4,
             ),
           ],
         ),
@@ -258,9 +286,11 @@ class HowToPage6 extends StatelessWidget {
         padding: const EdgeInsets.all(50),
         child: Column(
           children: [
-            Text('How to Kill', style: TextStyle(fontSize: 30)),
+            Text('How to Kill', style: KTextStyle.heading1),
+            SizedBox(height: 50),
             Text(
               '4. You will acquire your next mission from the eliminated target.',
+              style: KTextStyle.heading4,
             ),
           ],
         ),
@@ -280,16 +310,23 @@ class HowToPage7 extends StatelessWidget {
         padding: const EdgeInsets.all(50),
         child: Column(
           children: [
-            Text('Winning the Game', style: TextStyle(fontSize: 30)),
+            Text('Winning the Game', style: KTextStyle.heading1),
+            SizedBox(height: 50),
             Text(
               'At the end of the countdown the scoreboard will be revealed.',
+              style: KTextStyle.heading4,
             ),
-            Text('The person with the most kills wins.'),
+            Text(
+              'The person with the most kills wins.',
+              style: KTextStyle.heading4,
+            ),
             Text(
               'If there is a tie, the player remaining alive the longest wins.',
+              style: KTextStyle.heading4,
             ),
             Text(
               'If there is still no winner, then a group decision of "Most Difficult Kill" will crown the winnder.',
+              style: KTextStyle.heading4,
             ),
           ],
         ),
@@ -309,18 +346,27 @@ class HowToPage8 extends StatelessWidget {
         padding: const EdgeInsets.all(50),
         child: Column(
           children: [
-            Text('DO NOT', style: TextStyle(fontSize: 30)),
-            Text('1. Do not tell anyone your mission.'),
+            Text('DO NOT', style: KTextStyle.heading1),
+            Text(
+              '1. Do not tell anyone your mission.',
+              style: KTextStyle.heading4,
+            ),
             Text(
               '2. Do not get caught in the act! The key is to keep it a secret.',
+              style: KTextStyle.heading4,
             ),
             Text(
               '3. Do not make a scene once you\'ve been killed. All kills are to be kept silent until the end of the game.',
+              style: KTextStyle.heading4,
             ),
             Text(
               '4. Do not use violent or inappropraite objects or locations.',
+              style: KTextStyle.heading4,
             ),
-            Text('5. Do not take your mission literally. It\'s just a game.'),
+            Text(
+              '5. Do not take your mission literally. It\'s just a game.',
+              style: KTextStyle.heading4,
+            ),
           ],
         ),
       ),

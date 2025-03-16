@@ -1,3 +1,4 @@
+import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
 
@@ -22,20 +23,27 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Join Room', style: TextStyle(fontSize: 30)),
-            Text('Do you know the secret code?'),
+            Text('Join Room', style: KTextStyle.heading1),
+            SizedBox(height: 50),
+            Text('Do you know the secret code?', style: KTextStyle.heading4),
+            SizedBox(height: 50),
             TextField(
               controller: controller,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: '000000',
-                hintStyle: TextStyle(fontSize: 30),
+                hintStyle: KTextStyle.heading1,
               ),
               onEditingComplete: () {
                 roomCode = controller.text;
               },
             ),
-            Text('Join a friend\'s existing game with a room code'),
+            SizedBox(height: 50),
+            Text(
+              'Join a friend\'s existing\ngame with a room code',
+              style: KTextStyle.heading4,
+            ),
+            SizedBox(height: 50),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).push(
@@ -46,7 +54,7 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
                   ),
                 );
               },
-              child: Text('JOIN'),
+              child: Text('JOIN', style: KTextStyle.heading2),
             ),
           ],
         ),

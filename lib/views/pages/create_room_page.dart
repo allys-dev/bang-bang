@@ -1,3 +1,4 @@
+import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
 
@@ -10,11 +11,10 @@ class CreateRoomPage extends StatelessWidget {
       appBar: AppBar(),
       body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Create Room', style: TextStyle(fontSize: 30)),
-            Text('Room Name'),
+            Text('Create Room', style: KTextStyle.heading1),
+            SizedBox(height: 80),
+            Text('Room Name', style: KTextStyle.heading4),
             TextField(
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -22,7 +22,8 @@ class CreateRoomPage extends StatelessWidget {
                 hintStyle: TextStyle(fontSize: 15),
               ),
             ),
-            Text('Number of Players'),
+            SizedBox(height: 40),
+            Text('Number of Players', style: KTextStyle.heading4),
             TextField(
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -30,7 +31,8 @@ class CreateRoomPage extends StatelessWidget {
                 hintStyle: TextStyle(fontSize: 15),
               ),
             ),
-            Text('How long are you playing'),
+            SizedBox(height: 40),
+            Text('How long are you playing?', style: KTextStyle.heading4),
             TextField(
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -38,6 +40,7 @@ class CreateRoomPage extends StatelessWidget {
                 hintStyle: TextStyle(fontSize: 15),
               ),
             ),
+            SizedBox(height: 80),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).push(
@@ -48,7 +51,7 @@ class CreateRoomPage extends StatelessWidget {
                   ),
                 );
               },
-              child: Text('BEGIN'),
+              child: Text('BEGIN', style: KTextStyle.heading1),
             ),
           ],
         ),

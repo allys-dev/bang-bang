@@ -5,11 +5,7 @@ import 'package:bang_bang/views/pages/scoreboard_page.dart';
 import 'package:bang_bang/widgets/navbar_widget.dart';
 import 'package:flutter/material.dart';
 
-List<Widget> pages = [
-  MissionPage(),
-  ScoreboardPage(),
-  HowToPage(),
-];
+List<Widget> pages = [MissionPage(), ScoreboardPage(), HowToPage()];
 
 class GameTree extends StatelessWidget {
   const GameTree({super.key});

@@ -1,5 +1,5 @@
+import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/views/pages/game_tree.dart';
-import 'package:bang_bang/views/pages/mission_page.dart';
 import 'package:flutter/material.dart';
 
 class LobbyPage extends StatelessWidget {
@@ -13,33 +13,46 @@ class LobbyPage extends StatelessWidget {
       appBar: AppBar(),
       body: Column(
         children: [
-          Text("Room Code:"),
-          Text("00000"),
+          Text("Room Code:", style: KTextStyle.heading3),
+          Text("00000", style: KTextStyle.heading1),
+          SizedBox(height: 50),
           isCreator
-              ? Text("Begin game once all players have joined")
-              : Text("Waiting for room creator to begin game"),
-          Text("Player A"),
+              ? Text(
+                "Begin game once all\nplayers have joined",
+                style: KTextStyle.heading4,
+              )
+              : Text(
+                "Waiting for room\ncreator to begin game",
+                style: KTextStyle.heading4,
+              ),
+          SizedBox(height: 50),
+          Text("Player A", style: KTextStyle.heading4),
           Divider(),
-          Text("Waiting for Player"),
+          Text("Waiting for Player", style: KTextStyle.heading4),
           Divider(),
-          Text("Waiting for Player"),
+          Text("Waiting for Player", style: KTextStyle.heading4),
           Divider(),
-          Text("Waiting for Player"),
+          Text("Waiting for Player", style: KTextStyle.heading4),
           Divider(),
-          Text("Everyone is an assassin and everyone is a target."),
+          SizedBox(height: 50),
+          Text(
+            "Everyone is an assassin\nand everyone is a target.",
+            style: KTextStyle.heading4,
+          ),
+          SizedBox(height: 50),
           isCreator
               ? ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return const GameTree();
-                        },
-                      ),
-                    );
-                  },
-                  child: Text('BEGIN'),
-                )
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) {
+                        return const GameTree();
+                      },
+                    ),
+                  );
+                },
+                child: Text('BEGIN', style: KTextStyle.heading2),
+              )
               : SizedBox(),
         ],
       ),
