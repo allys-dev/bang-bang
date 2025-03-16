@@ -1,3 +1,4 @@
+import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
 
 class JoinRoomPage extends StatefulWidget {
@@ -28,9 +29,7 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: '000000',
-                hintStyle: TextStyle(
-                  fontSize: 30,
-                  ),
+                hintStyle: TextStyle(fontSize: 30),
               ),
               onEditingComplete: () {
                 roomCode = controller.text;
@@ -39,7 +38,13 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
             Text('Join a friend\'s existing game with a room code'),
             ElevatedButton(
               onPressed: () {
-                print('join button pressed');
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (BuildContext context) {
+                      return const LobbyPage(isCreator: false);
+                    },
+                  ),
+                );
               },
               child: Text('JOIN'),
             ),

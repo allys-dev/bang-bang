@@ -16,7 +16,9 @@ class LandingPage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.all(20),
-              child: Center(child: Text('BANG BANG', style: TextStyle(fontSize: 30))),
+              child: Center(
+                child: Text('BANG BANG', style: TextStyle(fontSize: 30)),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -30,7 +32,6 @@ class LandingPage extends StatelessWidget {
               },
               child: const Text('PLAY'),
             ),
-
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).push(
