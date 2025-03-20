@@ -1,5 +1,6 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
+import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -107,7 +108,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) {
-                        return LobbyPage(isCreator: true, roomCode: gameCode);
+                        return GetReadyPage(isCreator: true, gameCode: gameCode);
                       },
                     ),
                   );
@@ -121,7 +122,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
     );
   }
 
-  createGameRoom() async {
+  Future<void> createGameRoom() async {
     gameCode = (await supabase.rpc('gen_room_code')) as String;
 
     await supabase.from('game_rooms').insert({

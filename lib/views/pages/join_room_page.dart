@@ -1,4 +1,6 @@
 import 'package:bang_bang/data/constants.dart';
+import 'package:bang_bang/main.dart';
+import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
 
@@ -10,9 +12,7 @@ class JoinRoomPage extends StatefulWidget {
 }
 
 class _JoinRoomPageState extends State<JoinRoomPage> {
-  TextEditingController controller = TextEditingController();
-
-  String roomCode = "00000";
+  TextEditingController gameCodeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +28,12 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
             Text('Do you know the secret code?', style: KTextStyle.heading4),
             SizedBox(height: 50),
             TextField(
-              controller: controller,
+              controller: gameCodeController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: '000000',
                 hintStyle: KTextStyle.heading1,
               ),
-              onEditingComplete: () {
-                roomCode = controller.text;
-              },
             ),
             SizedBox(height: 50),
             Text(
@@ -45,14 +42,34 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
             ),
             SizedBox(height: 50),
             ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return LobbyPage(isCreator: false, roomCode: roomCode,);
-                    },
-                  ),
-                );
+              onPressed: () async {
+                if (await checkRoomExists(gameCodeController.text)) {
+                  if (context.mounted) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return GetReadyPage(
+                            isCreator: false,
+                            gameCode: gameCodeController.text,
+                          );
+                        },
+                      ),
+                    );
+                  }
+                } else {
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Text(
+                            'Room Code doesn\'t match an existing room. Check the code and try again. ',
+                          ),
+                        );
+                      },
+                    );
+                  }
+                }
               },
               child: Text('JOIN', style: KTextStyle.heading2),
             ),
@@ -61,4 +78,12 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
       ),
     );
   }
+}
+
+Future<bool> checkRoomExists(String gameCode) async {
+  final roomMatch = await supabase.from('game_rooms').select().match({
+    'game_code': gameCode,
+  });
+
+  return roomMatch.isEmpty ? false : true;
 }
