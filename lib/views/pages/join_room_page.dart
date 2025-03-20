@@ -49,7 +49,7 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (BuildContext context) {
-                      return const LobbyPage(isCreator: false);
+                      return LobbyPage(isCreator: false, roomCode: roomCode,);
                     },
                   ),
                 );

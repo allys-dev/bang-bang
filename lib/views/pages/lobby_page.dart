@@ -3,9 +3,10 @@ import 'package:bang_bang/views/pages/game_tree.dart';
 import 'package:flutter/material.dart';
 
 class LobbyPage extends StatelessWidget {
-  const LobbyPage({super.key, required this.isCreator});
+  const LobbyPage({super.key, required this.isCreator, required this.roomCode});
 
   final bool isCreator;
+  final String roomCode;
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +15,7 @@ class LobbyPage extends StatelessWidget {
       body: Column(
         children: [
           Text("Room Code:", style: KTextStyle.heading3),
-          Text("00000", style: KTextStyle.heading1),
+          Text(roomCode, style: KTextStyle.heading1),
           SizedBox(height: 50),
           isCreator
               ? Text(
