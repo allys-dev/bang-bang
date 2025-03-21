@@ -27,6 +27,7 @@ class LobbyPage extends StatelessWidget {
                 style: KTextStyle.heading4,
               ),
           SizedBox(height: 50),
+          // createPlayerList(),
           Text("Player A", style: KTextStyle.heading4),
           Divider(),
           Text("Waiting for Player", style: KTextStyle.heading4),
@@ -58,5 +59,15 @@ class LobbyPage extends StatelessWidget {
         ],
       ),
     );
+
   }
+  
+  // createPlayerList() {
+  //   return ListView(
+  //     children: [
+  //       for (var i = 0; i < getPlayerNums(); i++) Text('Waiting for Player'),
+  //     ],
+  //   );
+  // }
 }
+
