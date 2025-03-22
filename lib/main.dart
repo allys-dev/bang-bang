@@ -10,10 +10,11 @@ void main() async {
     url: SupabaseConfig.supabaseUrl,
     anonKey: SupabaseConfig.supabaseApiKey,
   );
-  
+
   runApp(const BangBang());
 }
 
+final supabase = Supabase.instance.client;
 
 class BangBang extends StatelessWidget {
   const BangBang({super.key});

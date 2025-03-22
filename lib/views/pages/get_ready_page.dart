@@ -1,10 +1,7 @@
-import 'dart:ffi';
-
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class GetReadyPage extends StatefulWidget {
   const GetReadyPage({

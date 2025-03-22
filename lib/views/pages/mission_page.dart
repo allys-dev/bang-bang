@@ -9,6 +9,7 @@ class MissionPage extends StatefulWidget {
 }
 
 class _MissionPageState extends State<MissionPage> {
+  
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -16,16 +17,16 @@ class _MissionPageState extends State<MissionPage> {
         children: [
           Text("TOP SECRET", style: KTextStyle.heading1),
           Text("Mission", style: KTextStyle.heading2),
-          SizedBox(height: 30),
+          SizedBox(height: 20),
           Text("Your Target", style: KTextStyle.heading4),
           Text("Player B", style: KTextStyle.heading3),
-          SizedBox(height: 30),
+          SizedBox(height: 10),
           Text("Object", style: KTextStyle.heading4),
           Text("Bottle", style: KTextStyle.heading3),
-          SizedBox(height: 30),
+          SizedBox(height: 10),
           Text("Location", style: KTextStyle.heading4),
           Text("Office", style: KTextStyle.heading3),
-          SizedBox(height: 50),
+          SizedBox(height: 30),
           ElevatedButton(
             onPressed: () {
               print("Eliminated");

@@ -1,9 +1,7 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/get_ready_page.dart';
-import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CreateRoomPage extends StatefulWidget {
   const CreateRoomPage({super.key});
