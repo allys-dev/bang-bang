@@ -18,10 +18,10 @@ class LobbyPage extends StatefulWidget {
 class _LobbyPageState extends State<LobbyPage> {
   late final SupabaseStreamBuilder playersStream;
   int joinedPlayers = 0;
-  late final int totalPlayers;
+  late final int? totalPlayers;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     playersStream = supabase
         .from('players')
@@ -58,7 +58,7 @@ class _LobbyPageState extends State<LobbyPage> {
               final table = snapshot.data!;
               joinedPlayers = table.length;
               String waitString =
-                  "Waiting for Players to Join: ${table.length}/${totalPlayers}";
+                  "Waiting for Players to Join: ${table.length}/$totalPlayers";
 
               return Column(
                 children: [
@@ -86,6 +86,12 @@ class _LobbyPageState extends State<LobbyPage> {
           widget.isCreator
               ? ElevatedButton(
                 onPressed: () {
+                  //randomise
+                  shuffleMissions();
+                  
+                  //set gameStarted to true
+                  startGame();
+
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) {
@@ -108,5 +114,13 @@ class _LobbyPageState extends State<LobbyPage> {
         .select('game_code, players')
         .eq('game_code', widget.roomCode);
     totalPlayers = data[0]["players"];
+  }
+  
+  Future<void> shuffleMissions() async {
+    await supabase.rpc('shuffle_missions');
+  }
+  
+  Future<void> startGame() async {
+    await supabase.from('game_rooms').update({'started':'true'}).eq('game_code', widget.roomCode);
   }
 }
