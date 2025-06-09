@@ -2,6 +2,7 @@ import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class JoinRoomPage extends StatefulWidget {
   const JoinRoomPage({super.key});
@@ -12,6 +13,13 @@ class JoinRoomPage extends StatefulWidget {
 
 class _JoinRoomPageState extends State<JoinRoomPage> {
   TextEditingController gameCodeController = TextEditingController();
+  late final SharedPreferences prefs;
+
+  @override
+  void initState() {
+    getSharedPrefs();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +41,7 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
                 hintText: '000000',
                 hintStyle: KTextStyle.heading1,
               ),
+              onSubmitted: (value) {},
             ),
             SizedBox(height: 50),
             Text(
@@ -43,13 +52,18 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
             ElevatedButton(
               onPressed: () async {
                 if (await checkRoomExists(gameCodeController.text)) {
+                  
+                  await prefs.setString(
+                    KConstants.gameCodeKey,
+                    gameCodeController.text,
+                  );
+
                   if (context.mounted) {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (BuildContext context) {
                           return GetReadyPage(
                             isCreator: false,
-                            gameCode: gameCodeController.text,
                           );
                         },
                       ),
@@ -76,6 +90,10 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
         ),
       ),
     );
+  }
+
+  Future<void> getSharedPrefs() async {
+    prefs = await SharedPreferences.getInstance();
   }
 }
 

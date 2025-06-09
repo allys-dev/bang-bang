@@ -1,15 +1,17 @@
 // import 'dart:convert';
 import 'package:bang_bang/data/constants.dart';
+import 'package:bang_bang/data/globals.dart' as globals;
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/game_tree.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LobbyPage extends StatefulWidget {
-  const LobbyPage({super.key, required this.isCreator, required this.roomCode});
+  const LobbyPage({super.key, required this.isCreator});
 
   final bool isCreator;
-  final String roomCode;
+  // final String roomCode;
 
   @override
   State<LobbyPage> createState() => _LobbyPageState();
@@ -17,17 +19,25 @@ class LobbyPage extends StatefulWidget {
 
 class _LobbyPageState extends State<LobbyPage> {
   late final SupabaseStreamBuilder playersStream;
-  int joinedPlayers = 0;
   late final int? totalPlayers;
+  late final SharedPreferences prefs;
+  
+  int joinedPlayers = 0;
 
   @override
   void initState(){
     super.initState();
+    getSharedPrefs();
     playersStream = supabase
         .from('players')
         .stream(primaryKey: ['id'])
-        .eq('game_code', widget.roomCode);
+        // .eq('game_code', widget.roomCode);
+        .eq('game_code', globals.gameCode);
     getTotalPlayers();
+  }
+
+  Future<void> getSharedPrefs() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
   }
 
   @override

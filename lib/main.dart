@@ -1,6 +1,9 @@
+import 'package:bang_bang/data/game_values.dart';
 import 'package:bang_bang/data/supabase_config.dart';
 import 'package:bang_bang/views/widget_tree.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:settings_provider/settings_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -11,8 +14,18 @@ void main() async {
     anonKey: SupabaseConfig.supabaseApiKey,
   );
 
-  runApp(const BangBang());
+  GameValues game = GameValues();
+
+  await game.initialize();
+
+  runApp(
+    Provider(
+      create: (BuildContext context) => game,
+      child: const BangBang(),
+      )
+  );
 }
+
 
 final supabase = Supabase.instance.client;
 

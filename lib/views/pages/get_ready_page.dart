@@ -2,15 +2,14 @@ import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GetReadyPage extends StatefulWidget {
   const GetReadyPage({
     super.key,
-    required this.gameCode,
     required this.isCreator,
   });
 
-  final String gameCode;
   final bool isCreator;
 
   @override
@@ -21,6 +20,13 @@ class _GetReadyPageState extends State<GetReadyPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController objectController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  late final SharedPreferences prefs;
+
+  @override
+  void initState() {
+    getSharedPrefs();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +89,6 @@ class _GetReadyPageState extends State<GetReadyPage> {
                     builder: (BuildContext context) {
                       return LobbyPage(
                         isCreator: widget.isCreator,
-                        roomCode: widget.gameCode,
                       );
                     },
                   ),
@@ -102,7 +107,15 @@ class _GetReadyPageState extends State<GetReadyPage> {
       'player_name': nameController.text,
       'object': objectController.text,
       'location': locationController.text,
-      'game_code': widget.gameCode,
+      'game_code': prefs.getString(KConstants.gameCodeKey),
     });
+
+    prefs.setString(KConstants.playerNameKey, nameController.text);
+    prefs.setString(KConstants.objectKey, objectController.text);
+    prefs.setString(KConstants.locationKey, locationController.text);
+  }
+  
+  Future<void> getSharedPrefs() async {
+    prefs = await SharedPreferences.getInstance();
   }
 }

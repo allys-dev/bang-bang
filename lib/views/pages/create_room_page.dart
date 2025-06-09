@@ -1,7 +1,9 @@
 import 'package:bang_bang/data/constants.dart';
+import 'package:bang_bang/data/globals.dart' as globals;
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateRoomPage extends StatefulWidget {
   const CreateRoomPage({super.key});
@@ -29,6 +31,13 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   int selectedPlayerNum = 4;
   TextEditingController roomNameController = TextEditingController();
   String gameCode = '00000';
+  late final SharedPreferences prefs;
+
+  @override
+  void initState() {
+    getSharedPrefs();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +115,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) {
-                        return GetReadyPage(isCreator: true, gameCode: gameCode);
+                        return GetReadyPage(isCreator: true);
                       },
                     ),
                   );
@@ -121,7 +130,9 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   }
 
   Future<void> createGameRoom() async {
-    gameCode = (await supabase.rpc('gen_room_code')) as String;
+    gameCode = await supabase.rpc('gen_room_code') as String;
+    
+    await prefs.setString(KConstants.gameCodeKey, gameCode);
 
     await supabase.from('game_rooms').insert({
       'game_code': gameCode,
@@ -129,5 +140,9 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
       'players': selectedPlayerNum,
       'duration': durationOptions[selectedDuration],
     });
+  }
+  
+  Future<void> getSharedPrefs() async {
+    prefs = await SharedPreferences.getInstance();
   }
 }
