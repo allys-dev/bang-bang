@@ -1,25 +1,19 @@
 import 'package:bang_bang/data/constants.dart';
+import 'package:bang_bang/data/hive_repository.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class JoinRoomPage extends StatefulWidget {
+class JoinRoomPage extends ConsumerStatefulWidget {
   const JoinRoomPage({super.key});
 
   @override
-  State<JoinRoomPage> createState() => _JoinRoomPageState();
+  ConsumerState<JoinRoomPage> createState() => _JoinRoomPageState();
 }
 
-class _JoinRoomPageState extends State<JoinRoomPage> {
+class _JoinRoomPageState extends ConsumerState<JoinRoomPage> {
   TextEditingController gameCodeController = TextEditingController();
-  late final SharedPreferences prefs;
-
-  @override
-  void initState() {
-    getSharedPrefs();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +47,8 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
               onPressed: () async {
                 if (await checkRoomExists(gameCodeController.text)) {
                   
-                  await prefs.setString(
-                    KConstants.gameCodeKey,
-                    gameCodeController.text,
-                  );
-
+                  ref.read(hiveRepositoryProvider).setGameCode(gameCodeController.text);
+                  
                   if (context.mounted) {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -90,10 +81,6 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
         ),
       ),
     );
-  }
-
-  Future<void> getSharedPrefs() async {
-    prefs = await SharedPreferences.getInstance();
   }
 }
 

@@ -1,10 +1,11 @@
 import 'package:bang_bang/data/constants.dart';
+import 'package:bang_bang/data/hive_repository.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class GetReadyPage extends StatefulWidget {
+class GetReadyPage extends ConsumerStatefulWidget {
   const GetReadyPage({
     super.key,
     required this.isCreator,
@@ -13,20 +14,13 @@ class GetReadyPage extends StatefulWidget {
   final bool isCreator;
 
   @override
-  State<GetReadyPage> createState() => _GetReadyPageState();
+  ConsumerState<GetReadyPage> createState() => _GetReadyPageState();
 }
 
-class _GetReadyPageState extends State<GetReadyPage> {
+class _GetReadyPageState extends ConsumerState<GetReadyPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController objectController = TextEditingController();
   TextEditingController locationController = TextEditingController();
-  late final SharedPreferences prefs;
-
-  @override
-  void initState() {
-    getSharedPrefs();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,15 +101,11 @@ class _GetReadyPageState extends State<GetReadyPage> {
       'player_name': nameController.text,
       'object': objectController.text,
       'location': locationController.text,
-      'game_code': prefs.getString(KConstants.gameCodeKey),
+      'game_code': ref.read(hiveRepositoryProvider).getGameCode(),
     });
-
-    prefs.setString(KConstants.playerNameKey, nameController.text);
-    prefs.setString(KConstants.objectKey, objectController.text);
-    prefs.setString(KConstants.locationKey, locationController.text);
-  }
-  
-  Future<void> getSharedPrefs() async {
-    prefs = await SharedPreferences.getInstance();
+    
+    ref.read(hiveRepositoryProvider).setPlayerName(nameController.text);
+    ref.read(hiveRepositoryProvider).setObject(objectController.text);
+    ref.read(hiveRepositoryProvider).setLocation(locationController.text);
   }
 }

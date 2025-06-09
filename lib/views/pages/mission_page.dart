@@ -1,19 +1,22 @@
 import 'package:bang_bang/data/constants.dart';
+import 'package:bang_bang/data/hive_repository.dart';
 import 'package:bang_bang/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class MissionPage extends StatefulWidget {
-  const MissionPage({super.key, required this.playerName, required this.gameCode});
+class MissionPage extends ConsumerStatefulWidget {
+  const MissionPage({super.key});
 
-  final String playerName;
-  final String gameCode;
+  // final String playerName;
+  // final String gameCode;
 
   @override
-  State<MissionPage> createState() => _MissionPageState();
+  ConsumerState<MissionPage> createState() => _MissionPageState();
 }
 
-class _MissionPageState extends State<MissionPage> {
+class _MissionPageState extends ConsumerState<MissionPage> {
   late final SupabaseStreamBuilder gameStream;
   // final String object = 'loading';
   // final String location = 'loading';
@@ -29,7 +32,7 @@ class _MissionPageState extends State<MissionPage> {
           event: PostgresChangeEvent.all,
           schema: 'public',
           table: 'players',
-          filter: PostgresChangeFilter(type: PostgresChangeFilterType.eq, column: 'game_code', value: value),
+          filter: PostgresChangeFilter(type: PostgresChangeFilterType.eq, column: 'game_code', value: ref.read(hiveRepositoryProvider).getGameCode()),
           callback: (payload) {
             
           },

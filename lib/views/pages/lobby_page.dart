@@ -1,43 +1,34 @@
-// import 'dart:convert';
 import 'package:bang_bang/data/constants.dart';
-import 'package:bang_bang/data/globals.dart' as globals;
+import 'package:bang_bang/data/hive_repository.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/game_tree.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LobbyPage extends StatefulWidget {
+class LobbyPage extends ConsumerStatefulWidget {
   const LobbyPage({super.key, required this.isCreator});
 
   final bool isCreator;
-  // final String roomCode;
 
   @override
-  State<LobbyPage> createState() => _LobbyPageState();
+  ConsumerState<LobbyPage> createState() => _LobbyPageState();
 }
 
-class _LobbyPageState extends State<LobbyPage> {
+class _LobbyPageState extends ConsumerState<LobbyPage> {
   late final SupabaseStreamBuilder playersStream;
   late final int? totalPlayers;
-  late final SharedPreferences prefs;
   
   int joinedPlayers = 0;
 
   @override
   void initState(){
     super.initState();
-    getSharedPrefs();
+    getTotalPlayers();
     playersStream = supabase
         .from('players')
         .stream(primaryKey: ['id'])
-        // .eq('game_code', widget.roomCode);
-        .eq('game_code', globals.gameCode);
-    getTotalPlayers();
-  }
-
-  Future<void> getSharedPrefs() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+        .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode());
   }
 
   @override
@@ -47,7 +38,7 @@ class _LobbyPageState extends State<LobbyPage> {
       body: Column(
         children: [
           Text("Room Code:", style: KTextStyle.heading3),
-          Text(widget.roomCode, style: KTextStyle.heading1),
+          Text(ref.read(hiveRepositoryProvider).getGameCode().toString(), style: KTextStyle.heading1),
           SizedBox(height: 50),
           widget.isCreator
               ? Text(
@@ -122,7 +113,7 @@ class _LobbyPageState extends State<LobbyPage> {
     final data = await supabase
         .from('game_rooms')
         .select('game_code, players')
-        .eq('game_code', widget.roomCode);
+        .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode());
     totalPlayers = data[0]["players"];
   }
   
@@ -131,6 +122,6 @@ class _LobbyPageState extends State<LobbyPage> {
   }
   
   Future<void> startGame() async {
-    await supabase.from('game_rooms').update({'started':'true'}).eq('game_code', widget.roomCode);
+    await supabase.from('game_rooms').update({'started':'true'}).eq('game_code', ref.read(hiveRepositoryProvider).getGameCode);
   }
 }

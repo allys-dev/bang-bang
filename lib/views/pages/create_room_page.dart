@@ -1,18 +1,18 @@
 import 'package:bang_bang/data/constants.dart';
-import 'package:bang_bang/data/globals.dart' as globals;
+import 'package:bang_bang/data/hive_repository.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CreateRoomPage extends StatefulWidget {
+class CreateRoomPage extends ConsumerStatefulWidget {
   const CreateRoomPage({super.key});
 
   @override
-  State<CreateRoomPage> createState() => _CreateRoomPageState();
+  ConsumerState<CreateRoomPage> createState() => _CreateRoomPageState();
 }
 
-class _CreateRoomPageState extends State<CreateRoomPage> {
+class _CreateRoomPageState extends ConsumerState<CreateRoomPage> {
   final playerNumOptions = List<int>.generate(27, (i) => i + 4);
   final durationOptions = {
     '12 hours': 12,
@@ -31,13 +31,6 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   int selectedPlayerNum = 4;
   TextEditingController roomNameController = TextEditingController();
   String gameCode = '00000';
-  late final SharedPreferences prefs;
-
-  @override
-  void initState() {
-    getSharedPrefs();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +125,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   Future<void> createGameRoom() async {
     gameCode = await supabase.rpc('gen_room_code') as String;
     
-    await prefs.setString(KConstants.gameCodeKey, gameCode);
+    ref.read(hiveRepositoryProvider).setGameCode(gameCode);
 
     await supabase.from('game_rooms').insert({
       'game_code': gameCode,
@@ -140,9 +133,5 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
       'players': selectedPlayerNum,
       'duration': durationOptions[selectedDuration],
     });
-  }
-  
-  Future<void> getSharedPrefs() async {
-    prefs = await SharedPreferences.getInstance();
   }
 }

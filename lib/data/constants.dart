@@ -9,12 +9,4 @@ class KTextStyle {
   static TextStyle content2 = TextStyle(fontSize: 10.0);
 }
 
-class KConstants {
-  static const String gameCodeKey = 'gameCodeKey';
-  static const String playerNameKey = 'playerNameKey';
-  static const String objectKey = 'objectKey';
-  static const String locationKey = 'locationKey';
-  static const String targetKey = 'targetKey';
-}
-
 
