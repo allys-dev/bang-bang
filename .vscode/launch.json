@@ -21,5 +21,12 @@
             "type": "dart",
             "flutterMode": "release"
         }
+    ],
+    "compounds": [
+        {
+            "name": "Devices x 4",
+            "configurations": ["bang_bang", "bang_bang", "bang_bang", "bang_bang"], 
+            "stopAll": true
+        }
     ]
 }
