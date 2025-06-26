@@ -18,7 +18,8 @@ class LobbyPage extends ConsumerStatefulWidget {
 class _LobbyPageState extends ConsumerState<LobbyPage> {
   late final SupabaseStreamBuilder playersStream;
   late final SupabaseStreamBuilder gameStartStream;
-  late final int? totalPlayers;
+  late final int totalPlayers;
+  bool playersInitialised = false;
 
   int joinedPlayers = 0;
 
@@ -40,14 +41,15 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
           callback: (payload) {
             print("Postgres Change!!!");
             print(payload);
-            //   if (payload['new']['content'] == true) {
-            //   Navigator.of(context).push(
-            //   MaterialPageRoute(
-            //     builder: (BuildContext context) {
-            //       return const GameTree();
-            //     },
-            //   ),
-            // );
+            if (payload.newRecord['started'] == true) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    return const GameTree();
+                  },
+                ),
+              );
+            }
           },
         )
         .subscribe();
@@ -55,11 +57,6 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
         .from('players')
         .stream(primaryKey: ['id'])
         .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode());
-
-    // gameStartStream = supabase
-    //     .from('game_rooms')
-    //     .stream(primaryKey: ['game_code'])
-    //     .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode());
   }
 
   @override
@@ -93,7 +90,9 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
               }
 
               if (!snapshot.hasData ||
-                  (snapshot.data as List<dynamic>).isEmpty) {
+                  (snapshot.data as List<dynamic>).isEmpty) {}
+
+              while (!playersInitialised) {
                 return const Center(child: CircularProgressIndicator());
               }
 
@@ -163,6 +162,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
         .select('game_code, players')
         .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode());
     totalPlayers = data[0]["players"];
+    playersInitialised = true;
   }
 
   Future<void> shuffleMissions() async {
@@ -180,20 +180,13 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
   }
 
   Future<void> startGame() async {
-    print("Starting game");
-    final startedData = await supabase
-        .from('game_rooms')
-        .update({'started': true})
-        .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode)
-        .select();
+    final startedData =
+        await supabase
+            .from('game_rooms')
+            .update({'started': true})
+            .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode())
+            .select();
 
     print("Set started: $startedData");
-
-    final startData = await supabase
-        .from('game_rooms')
-        .select('game_code, started')
-        .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode());
-    bool gameStarted = startData[0]["started"];
-    print("Started: $gameStarted");
   }
 }
