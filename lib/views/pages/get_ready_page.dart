@@ -6,10 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GetReadyPage extends ConsumerStatefulWidget {
-  const GetReadyPage({
-    super.key,
-    required this.isCreator,
-  });
+  const GetReadyPage({super.key, required this.isCreator});
 
   final bool isCreator;
 
@@ -81,9 +78,7 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (BuildContext context) {
-                      return LobbyPage(
-                        isCreator: widget.isCreator,
-                      );
+                      return LobbyPage(isCreator: widget.isCreator);
                     },
                   ),
                 );
@@ -99,12 +94,14 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
   void createPlayer() async {
     await supabase.from('players').insert({
       'player_name': nameController.text,
+      'target_name': nameController.text,
       'object': objectController.text,
       'location': locationController.text,
       'game_code': ref.read(hiveRepositoryProvider).getGameCode(),
     });
-    
+
     ref.read(hiveRepositoryProvider).setPlayerName(nameController.text);
+    ref.read(hiveRepositoryProvider).setTargetName(nameController.text);
     ref.read(hiveRepositoryProvider).setObject(objectController.text);
     ref.read(hiveRepositoryProvider).setLocation(locationController.text);
   }
