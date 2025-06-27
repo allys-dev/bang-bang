@@ -31,9 +31,21 @@ class _MissionPageState extends ConsumerState<MissionPage> {
           event: PostgresChangeEvent.all,
           schema: 'public',
           table: 'players',
-          filter: PostgresChangeFilter(type: PostgresChangeFilterType.eq, column: 'game_code', value: ref.read(hiveRepositoryProvider).getGameCode()),
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'game_code',
+            value: ref.read(hiveRepositoryProvider).getGameCode(),
+          ),
           callback: (payload) {
-            
+            ref
+                .read(hiveRepositoryProvider)
+                .setTargetName(payload.newRecord['target_name']);
+            ref
+                .read(hiveRepositoryProvider)
+                .setObject(payload.newRecord['object']);
+            ref
+                .read(hiveRepositoryProvider)
+                .setLocation(payload.newRecord['location']);
           },
         )
         .subscribe();
@@ -48,13 +60,22 @@ class _MissionPageState extends ConsumerState<MissionPage> {
           Text("Mission", style: KTextStyle.heading2),
           SizedBox(height: 20),
           Text("Your Target", style: KTextStyle.heading4),
-          Text("Player B", style: KTextStyle.heading3),
+          Text(
+            ref.read(hiveRepositoryProvider).getTargetName(),
+            style: KTextStyle.heading3,
+          ),
           SizedBox(height: 10),
           Text("Object", style: KTextStyle.heading4),
-          Text("Bottle", style: KTextStyle.heading3),
+          Text(
+            ref.read(hiveRepositoryProvider).getObject(),
+            style: KTextStyle.heading3,
+          ),
           SizedBox(height: 10),
           Text("Location", style: KTextStyle.heading4),
-          Text("Office", style: KTextStyle.heading3),
+          Text(
+            ref.read(hiveRepositoryProvider).getLocation(),
+            style: KTextStyle.heading3,
+          ),
           SizedBox(height: 30),
           ElevatedButton(
             onPressed: () {
