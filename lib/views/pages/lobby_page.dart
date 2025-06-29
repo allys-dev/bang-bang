@@ -90,9 +90,13 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
               }
 
               if (!snapshot.hasData ||
-                  (snapshot.data as List<dynamic>).isEmpty) {}
+                  (snapshot.data as List<dynamic>).isEmpty) {
+                print("No data in playersStream");
+                return const Center(child: CircularProgressIndicator());
+              }
 
               while (!playersInitialised) {
+                print("Waiting for players to be initialised");
                 return const Center(child: CircularProgressIndicator());
               }
 
