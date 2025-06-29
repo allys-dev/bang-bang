@@ -1,15 +1,13 @@
 import 'package:bang_bang/data/constants.dart';
-import 'package:bang_bang/data/hive_repository.dart';
 import 'package:bang_bang/main.dart';
+import 'package:bang_bang/providers/player_provider.dart';
 import 'package:bang_bang/views/pages/game_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LobbyPage extends ConsumerStatefulWidget {
-  const LobbyPage({super.key, required this.isCreator});
-
-  final bool isCreator;
+  const LobbyPage({super.key});
 
   @override
   ConsumerState<LobbyPage> createState() => _LobbyPageState();
@@ -22,10 +20,16 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
   bool playersInitialised = false;
 
   int joinedPlayers = 0;
+  bool isCreator = false;
 
   @override
   void initState() {
     super.initState();
+    isCreator = ref.read(playerNotifierProvider).isCreator;
+    print("Is creator in lobby page: $isCreator");
+    print(
+      "Game code in lobby page: ${ref.read(playerNotifierProvider).gameCode}",
+    );
     getTotalPlayers();
     supabase
         .channel('gameStart')
@@ -36,7 +40,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
             column: 'game_code',
-            value: ref.read(hiveRepositoryProvider).getGameCode(),
+            value: ref.read(playerNotifierProvider).gameCode,
           ),
           callback: (payload) {
             print("Postgres Change!!!");
@@ -56,7 +60,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
     playersStream = supabase
         .from('players')
         .stream(primaryKey: ['id'])
-        .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode());
+        .eq('game_code', ref.read(playerNotifierProvider).gameCode);
   }
 
   @override
@@ -67,11 +71,11 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
         children: [
           Text("Room Code:", style: KTextStyle.heading3),
           Text(
-            ref.read(hiveRepositoryProvider).getGameCode().toString(),
+            ref.read(playerNotifierProvider).gameCode,
             style: KTextStyle.heading1,
           ),
           SizedBox(height: 50),
-          widget.isCreator
+          isCreator
               ? Text(
                 "Begin game once all\nplayers have joined",
                 style: KTextStyle.heading4,
@@ -135,7 +139,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
             style: KTextStyle.heading4,
           ),
           SizedBox(height: 50),
-          widget.isCreator
+          ref.read(playerNotifierProvider).isCreator
               ? ElevatedButton(
                 onPressed: () {
                   //randomise
@@ -161,12 +165,14 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
   }
 
   Future<void> getTotalPlayers() async {
+    print("getting total players");
     final data = await supabase
         .from('game_rooms')
         .select('game_code, players')
-        .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode());
+        .eq('game_code', ref.read(playerNotifierProvider).gameCode);
     totalPlayers = data[0]["players"];
     playersInitialised = true;
+    print("Total players: $totalPlayers");
   }
 
   Future<void> shuffleMissions() async {
@@ -174,9 +180,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
       // Call the shuffle_missions function
       await supabase.rpc(
         'shuffle_missions',
-        params: {
-          'game_code_input': ref.read(hiveRepositoryProvider).getGameCode(),
-        },
+        params: {'game_code_input': ref.read(playerNotifierProvider).gameCode},
       );
     } catch (e) {
       print("Error calling shuffle_missions: $e");
@@ -188,7 +192,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
         await supabase
             .from('game_rooms')
             .update({'started': true})
-            .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode())
+            .eq('game_code', ref.read(playerNotifierProvider).gameCode)
             .select();
 
     print("Set started: $startedData");

@@ -1,6 +1,6 @@
 import 'package:bang_bang/data/constants.dart';
-import 'package:bang_bang/data/hive_repository.dart';
 import 'package:bang_bang/main.dart';
+import 'package:bang_bang/providers/player_provider.dart';
 import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,16 +46,15 @@ class _JoinRoomPageState extends ConsumerState<JoinRoomPage> {
             ElevatedButton(
               onPressed: () async {
                 if (await checkRoomExists(gameCodeController.text)) {
-                  
-                  ref.read(hiveRepositoryProvider).setGameCode(gameCodeController.text);
-                  
+                  ref
+                      .read(playerNotifierProvider.notifier)
+                      .setGameCode(gameCodeController.text);
+
                   if (context.mounted) {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (BuildContext context) {
-                          return GetReadyPage(
-                            isCreator: false,
-                          );
+                          return GetReadyPage();
                         },
                       ),
                     );

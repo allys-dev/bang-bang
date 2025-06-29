@@ -1,6 +1,6 @@
 import 'package:bang_bang/data/constants.dart';
-import 'package:bang_bang/data/hive_repository.dart';
 import 'package:bang_bang/main.dart';
+import 'package:bang_bang/providers/player_provider.dart';
 import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,13 +102,17 @@ class _CreateRoomPageState extends ConsumerState<CreateRoomPage> {
             SizedBox(height: 80),
             ElevatedButton(
               onPressed: () async {
+                ref.read(playerNotifierProvider.notifier).setIsCreator(true);
+                print(
+                  "Player is creator: ${ref.read(playerNotifierProvider).isCreator}",
+                );
                 await createGameRoom();
 
                 if (context.mounted) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) {
-                        return GetReadyPage(isCreator: true);
+                        return GetReadyPage();
                       },
                     ),
                   );
@@ -124,8 +128,12 @@ class _CreateRoomPageState extends ConsumerState<CreateRoomPage> {
 
   Future<void> createGameRoom() async {
     gameCode = await supabase.rpc('gen_room_code') as String;
-    
-    ref.read(hiveRepositoryProvider).setGameCode(gameCode);
+
+    ref.read(playerNotifierProvider.notifier).setGameCode(gameCode);
+    print("gameCode: $gameCode");
+    print(
+      "gameCode from provider: ${ref.read(playerNotifierProvider).gameCode}",
+    );
 
     await supabase.from('game_rooms').insert({
       'game_code': gameCode,

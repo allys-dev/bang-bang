@@ -1,15 +1,13 @@
 import 'package:bang_bang/data/constants.dart';
-import 'package:bang_bang/data/hive_repository.dart';
+// import 'package:bang_bang/data/hive_repository.dart';
 import 'package:bang_bang/main.dart';
+import 'package:bang_bang/providers/player_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MissionPage extends ConsumerStatefulWidget {
   const MissionPage({super.key});
-
-  // final String playerName;
-  // final String gameCode;
 
   @override
   ConsumerState<MissionPage> createState() => _MissionPageState();
@@ -34,19 +32,10 @@ class _MissionPageState extends ConsumerState<MissionPage> {
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
             column: 'game_code',
-            value: ref.read(hiveRepositoryProvider).getGameCode(),
+            value: ref.read(playerNotifierProvider).gameCode,
           ),
           callback: (payload) {
             print('Postgres Change! New record: ${payload.newRecord}');
-            // ref
-            //     .read(hiveRepositoryProvider)
-            //     .setTargetName(payload.newRecord['target_name']);
-            // ref
-            //     .read(hiveRepositoryProvider)
-            //     .setObject(payload.newRecord['object']);
-            // ref
-            //     .read(hiveRepositoryProvider)
-            //     .setLocation(payload.newRecord['location']);
           },
         )
         .subscribe();
@@ -65,19 +54,19 @@ class _MissionPageState extends ConsumerState<MissionPage> {
                   SizedBox(height: 20),
                   Text("Your Target", style: KTextStyle.heading4),
                   Text(
-                    ref.read(hiveRepositoryProvider).getTargetName(),
+                    ref.watch(playerNotifierProvider).targetName,
                     style: KTextStyle.heading3,
                   ),
                   SizedBox(height: 10),
                   Text("Object", style: KTextStyle.heading4),
                   Text(
-                    ref.read(hiveRepositoryProvider).getObject(),
+                    ref.watch(playerNotifierProvider).object,
                     style: KTextStyle.heading3,
                   ),
                   SizedBox(height: 10),
                   Text("Location", style: KTextStyle.heading4),
                   Text(
-                    ref.read(hiveRepositoryProvider).getLocation(),
+                    ref.watch(playerNotifierProvider).location,
                     style: KTextStyle.heading3,
                   ),
                   SizedBox(height: 30),
@@ -90,7 +79,7 @@ class _MissionPageState extends ConsumerState<MissionPage> {
                           return AlertDialog.adaptive(
                             title: Text("Confirm Elimination"),
                             content: Text(
-                              "Are you sure you want to eliminate ${ref.read(hiveRepositoryProvider).getTargetName()}?",
+                              "Are you sure you want to eliminate ${ref.read(playerNotifierProvider).targetName}?",
                             ),
                             actions: [
                               TextButton(
@@ -131,13 +120,17 @@ class _MissionPageState extends ConsumerState<MissionPage> {
     final data = await supabase
         .from('players')
         .select()
-        .eq('player_name', ref.read(hiveRepositoryProvider).getPlayerName())
-        .eq('game_code', ref.read(hiveRepositoryProvider).getGameCode());
+        .eq('player_name', ref.read(playerNotifierProvider).playerName)
+        .eq('game_code', ref.read(playerNotifierProvider).gameCode);
 
-    ref.read(hiveRepositoryProvider).setPlayerName(data[0]['player_name']);
-    ref.read(hiveRepositoryProvider).setTargetName(data[0]['target_name']);
-    ref.read(hiveRepositoryProvider).setObject(data[0]['object']);
-    ref.read(hiveRepositoryProvider).setLocation(data[0]['location']);
+    ref
+        .read(playerNotifierProvider.notifier)
+        .setPlayerName(data[0]['player_name']);
+    ref
+        .read(playerNotifierProvider.notifier)
+        .setTargetName(data[0]['target_name']);
+    ref.read(playerNotifierProvider.notifier).setObject(data[0]['object']);
+    ref.read(playerNotifierProvider.notifier).setLocation(data[0]['location']);
 
     playerUpdated = true;
     setState(() {});
