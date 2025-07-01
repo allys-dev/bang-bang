@@ -1,7 +1,9 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
+import 'package:bang_bang/providers/game_stream_provider.dart';
 import 'package:bang_bang/providers/player_provider.dart';
 import 'package:bang_bang/views/pages/game_tree.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -31,32 +33,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
       "Game code in lobby page: ${ref.read(playerNotifierProvider).gameCode}",
     );
     getTotalPlayers();
-    supabase
-        .channel('gameStart')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: 'game_rooms',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'game_code',
-            value: ref.read(playerNotifierProvider).gameCode,
-          ),
-          callback: (payload) {
-            print("Postgres Change!!!");
-            print(payload);
-            if (payload.newRecord['started'] == true) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (BuildContext context) {
-                    return const GameTree();
-                  },
-                ),
-              );
-            }
-          },
-        )
-        .subscribe();
+
     playersStream = supabase
         .from('players')
         .stream(primaryKey: ['id'])
@@ -65,6 +42,33 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final hasGameStarted = ref.watch(
+        gameStreamProvider.select((asyncGameList) {
+          return asyncGameList.maybeWhen(
+            data: (gameList) {
+              final game = gameList.firstWhereOrNull(
+                (game) =>
+                    game.gameCode == ref.read(playerNotifierProvider).gameCode,
+              );
+              return game != null ? game.started : false;
+            },
+            orElse: () => false,
+          );
+        }),
+      );
+
+      if (hasGameStarted) {
+        print("Game has started, navigating to GameTree");
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return const GameTree();
+            },
+          ),
+        );
+      }
+    });
     return Scaffold(
       appBar: AppBar(),
       body: Column(
@@ -145,8 +149,10 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
                   //randomise
                   shuffleMissions();
 
-                  //set gameStarted to true
-                  startGame();
+                  // Start the game
+                  ref
+                      .read(gameStreamProvider.notifier)
+                      .startGame(ref.read(playerNotifierProvider).gameCode);
 
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -187,14 +193,14 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
     }
   }
 
-  Future<void> startGame() async {
-    final startedData =
-        await supabase
-            .from('game_rooms')
-            .update({'started': true})
-            .eq('game_code', ref.read(playerNotifierProvider).gameCode)
-            .select();
+  // Future<void> startGame() async {
+  //   final startedData =
+  //       await supabase
+  //           .from('game_rooms')
+  //           .update({'started': true})
+  //           .eq('game_code', ref.read(playerNotifierProvider).gameCode)
+  //           .select();
 
-    print("Set started: $startedData");
-  }
+  //   print("Set started: $startedData");
+  // }
 }

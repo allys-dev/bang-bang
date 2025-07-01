@@ -1,3 +1,4 @@
+import 'package:bang_bang/providers/game_stream_provider.dart';
 import 'package:bang_bang/providers/player_provider.dart';
 import 'package:bang_bang/views/pages/landing_page.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ class WidgetTree extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(playerNotifierProvider);
+    ref.watch(gameStreamProvider);
     return LandingPage();
   }
 }
