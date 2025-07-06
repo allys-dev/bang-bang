@@ -16,13 +16,13 @@ class GameStream extends _$GameStream {
   }
 
   Future<void> startGame(String gameCode) async {
-    final response = await supabase
+    await supabase
         .from('game_rooms')
         .update({'started': true})
         .eq('game_code', gameCode);
 
-    if (response.error != null) {
-      throw Exception('Failed to start game: ${response.error!.message}');
-    }
+    // if (response.error != null) {
+    //   throw Exception('Failed to start game: ${response.error!.message}');
+    // }
   }
 }

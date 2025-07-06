@@ -1,6 +1,6 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
-import 'package:bang_bang/providers/player_provider.dart';
+import 'package:bang_bang/providers/local_data_notifier_provider.dart';
 import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,10 +102,8 @@ class _CreateRoomPageState extends ConsumerState<CreateRoomPage> {
             SizedBox(height: 80),
             ElevatedButton(
               onPressed: () async {
-                ref.read(playerNotifierProvider.notifier).setIsCreator(true);
-                print(
-                  "Player is creator: ${ref.read(playerNotifierProvider).isCreator}",
-                );
+                ref.read(localDataNotifierProvider.notifier).setIsCreator(true);
+
                 await createGameRoom();
 
                 if (context.mounted) {
@@ -129,10 +127,10 @@ class _CreateRoomPageState extends ConsumerState<CreateRoomPage> {
   Future<void> createGameRoom() async {
     gameCode = await supabase.rpc('gen_room_code') as String;
 
-    ref.read(playerNotifierProvider.notifier).setGameCode(gameCode);
+    ref.read(localDataNotifierProvider.notifier).setGameCode(gameCode);
     print("gameCode: $gameCode");
     print(
-      "gameCode from provider: ${ref.read(playerNotifierProvider).gameCode}",
+      "gameCode from provider: ${ref.read(localDataNotifierProvider).gameCode}",
     );
 
     await supabase.from('game_rooms').insert({

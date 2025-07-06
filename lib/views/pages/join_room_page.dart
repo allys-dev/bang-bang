@@ -1,6 +1,6 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
-import 'package:bang_bang/providers/player_provider.dart';
+import 'package:bang_bang/providers/local_data_notifier_provider.dart';
 import 'package:bang_bang/views/pages/get_ready_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,7 +47,7 @@ class _JoinRoomPageState extends ConsumerState<JoinRoomPage> {
               onPressed: () async {
                 if (await checkRoomExists(gameCodeController.text)) {
                   ref
-                      .read(playerNotifierProvider.notifier)
+                      .read(localDataNotifierProvider.notifier)
                       .setGameCode(gameCodeController.text);
 
                   if (context.mounted) {
@@ -84,9 +84,13 @@ class _JoinRoomPageState extends ConsumerState<JoinRoomPage> {
 }
 
 Future<bool> checkRoomExists(String gameCode) async {
-  final roomMatch = await supabase.from('game_rooms').select().match({
+  final result = await supabase.from('game_rooms').select().match({
     'game_code': gameCode,
   });
 
-  return roomMatch.isEmpty ? false : true;
+  final List<Map<String, dynamic>> roomMatch = List<Map<String, dynamic>>.from(
+    result,
+  );
+
+  return roomMatch.isNotEmpty;
 }

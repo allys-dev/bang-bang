@@ -1,6 +1,6 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
-import 'package:bang_bang/providers/player_provider.dart';
+import 'package:bang_bang/providers/local_data_notifier_provider.dart';
 import 'package:bang_bang/views/pages/lobby_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -95,18 +95,20 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
       'target_name': nameController.text,
       'object': objectController.text,
       'location': locationController.text,
-      'game_code': ref.read(playerNotifierProvider).gameCode,
+      'game_code': ref.read(localDataNotifierProvider).gameCode,
+      'is_creator': ref.read(localDataNotifierProvider).isCreator,
     });
 
-    ref
-        .read(playerNotifierProvider.notifier)
-        .setPlayerName(nameController.text);
-    ref
-        .read(playerNotifierProvider.notifier)
-        .setTargetName(nameController.text);
-    ref.read(playerNotifierProvider.notifier).setObject(objectController.text);
-    ref
-        .read(playerNotifierProvider.notifier)
-        .setLocation(locationController.text);
+    // Get unique player ID
+    final playerData =
+        await supabase
+            .from('players')
+            .select()
+            .eq('game_code', ref.read(localDataNotifierProvider).gameCode)
+            .eq('player_name', nameController.text)
+            .single();
+
+    // Set local player ID
+    ref.read(localDataNotifierProvider.notifier).setPlayerId(playerData['id']);
   }
 }

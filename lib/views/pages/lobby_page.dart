@@ -1,7 +1,7 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/providers/game_stream_provider.dart';
-import 'package:bang_bang/providers/player_provider.dart';
+import 'package:bang_bang/providers/local_data_notifier_provider.dart';
 import 'package:bang_bang/views/pages/game_tree.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -27,17 +27,14 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
   @override
   void initState() {
     super.initState();
-    isCreator = ref.read(playerNotifierProvider).isCreator;
-    print("Is creator in lobby page: $isCreator");
-    print(
-      "Game code in lobby page: ${ref.read(playerNotifierProvider).gameCode}",
-    );
+    isCreator = ref.read(localDataNotifierProvider).isCreator;
     getTotalPlayers();
 
+    // TODO - should probably be moved to a notifier
     playersStream = supabase
         .from('players')
         .stream(primaryKey: ['id'])
-        .eq('game_code', ref.read(playerNotifierProvider).gameCode);
+        .eq('game_code', ref.read(localDataNotifierProvider).gameCode);
   }
 
   @override
@@ -49,7 +46,8 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
             data: (gameList) {
               final game = gameList.firstWhereOrNull(
                 (game) =>
-                    game.gameCode == ref.read(playerNotifierProvider).gameCode,
+                    game.gameCode ==
+                    ref.read(localDataNotifierProvider).gameCode,
               );
               return game != null ? game.started : false;
             },
@@ -75,7 +73,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
         children: [
           Text("Room Code:", style: KTextStyle.heading3),
           Text(
-            ref.read(playerNotifierProvider).gameCode,
+            ref.read(localDataNotifierProvider).gameCode,
             style: KTextStyle.heading1,
           ),
           SizedBox(height: 50),
@@ -143,7 +141,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
             style: KTextStyle.heading4,
           ),
           SizedBox(height: 50),
-          ref.read(playerNotifierProvider).isCreator
+          ref.read(localDataNotifierProvider).isCreator
               ? ElevatedButton(
                 onPressed: () {
                   //randomise
@@ -152,15 +150,18 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
                   // Start the game
                   ref
                       .read(gameStreamProvider.notifier)
-                      .startGame(ref.read(playerNotifierProvider).gameCode);
+                      .startGame(ref.read(localDataNotifierProvider).gameCode);
 
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) {
-                        return const GameTree();
-                      },
-                    ),
-                  );
+                  print("Game started");
+                  setState(() {});
+
+                  // Navigator.of(context).push(
+                  //   MaterialPageRoute(
+                  //     builder: (BuildContext context) {
+                  //       return const GameTree();
+                  //     },
+                  //   ),
+                  // );
                 },
                 child: Text('BEGIN', style: KTextStyle.heading2),
               )
@@ -175,7 +176,7 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
     final data = await supabase
         .from('game_rooms')
         .select('game_code, players')
-        .eq('game_code', ref.read(playerNotifierProvider).gameCode);
+        .eq('game_code', ref.read(localDataNotifierProvider).gameCode);
     totalPlayers = data[0]["players"];
     playersInitialised = true;
     print("Total players: $totalPlayers");
@@ -186,21 +187,12 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
       // Call the shuffle_missions function
       await supabase.rpc(
         'shuffle_missions',
-        params: {'game_code_input': ref.read(playerNotifierProvider).gameCode},
+        params: {
+          'game_code_input': ref.read(localDataNotifierProvider).gameCode,
+        },
       );
     } catch (e) {
       print("Error calling shuffle_missions: $e");
     }
   }
-
-  // Future<void> startGame() async {
-  //   final startedData =
-  //       await supabase
-  //           .from('game_rooms')
-  //           .update({'started': true})
-  //           .eq('game_code', ref.read(playerNotifierProvider).gameCode)
-  //           .select();
-
-  //   print("Set started: $startedData");
-  // }
 }

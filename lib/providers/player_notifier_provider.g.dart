@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'player_provider.dart';
+part of 'player_notifier_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$playerNotifierHash() => r'e73fdc2308429eb9e9988ffe6bd7aa654924d206';
+String _$playerNotifierHash() => r'bf3712787712f06a1db99322709ff3e8f2117d45';
 
 /// See also [PlayerNotifier].
 @ProviderFor(PlayerNotifier)
