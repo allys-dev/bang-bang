@@ -1,10 +1,7 @@
 import 'package:bang_bang/data/constants.dart';
-// import 'package:bang_bang/main.dart';
-// import 'package:bang_bang/models/player.dart';
-// import 'package:bang_bang/providers/local_data_notifier_provider.dart';
+import 'package:bang_bang/main.dart';
+import 'package:bang_bang/providers/local_data_notifier_provider.dart';
 import 'package:bang_bang/providers/player_notifier_provider.dart';
-// import 'package:bang_bang/providers/player_provider.dart';
-// import 'package:bang_bang/providers/players_stream_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,34 +20,28 @@ class _MissionPageState extends ConsumerState<MissionPage> {
   @override
   void initState() {
     super.initState();
-
-    // updatePlayer();
-
-    // TODO - should probably be moved to a notifier
-    // supabase
-    //     .channel('players')
-    //     .onPostgresChanges(
-    //       event: PostgresChangeEvent.all,
-    //       schema: 'public',
-    //       table: 'players',
-    //       filter: PostgresChangeFilter(
-    //         type: PostgresChangeFilterType.eq,
-    //         column: 'game_code',
-    //         value: ref.read(localDataNotifierProvider).gameCode,
-    //       ),
-    //       callback: (payload) {
-    //         print('Postgres Change! New record: ${payload.newRecord}');
-    //       },
-    //     )
-    //     .subscribe();
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child:
-          (ref.watch(playerNotifierProvider).playerName == "Error" ||
-                  ref.watch(playerNotifierProvider).playerName == "Unknown")
+          (ref
+                          .watch(
+                            playerNotifierProvider(
+                              ref.read(localDataNotifierProvider).playerId,
+                            ),
+                          )
+                          .playerName ==
+                      "Error" ||
+                  ref
+                          .watch(
+                            playerNotifierProvider(
+                              ref.read(localDataNotifierProvider).playerId,
+                            ),
+                          )
+                          .playerName ==
+                      "Unknown")
               ? const Center(child: CircularProgressIndicator())
               : Column(
                 children: [
@@ -59,19 +50,37 @@ class _MissionPageState extends ConsumerState<MissionPage> {
                   SizedBox(height: 20),
                   Text("Your Target", style: KTextStyle.heading4),
                   Text(
-                    ref.watch(playerNotifierProvider).targetName,
+                    ref
+                        .watch(
+                          playerNotifierProvider(
+                            ref.read(localDataNotifierProvider).playerId,
+                          ),
+                        )
+                        .targetName,
                     style: KTextStyle.heading3,
                   ),
                   SizedBox(height: 10),
                   Text("Object", style: KTextStyle.heading4),
                   Text(
-                    ref.watch(playerNotifierProvider).object,
+                    ref
+                        .watch(
+                          playerNotifierProvider(
+                            ref.read(localDataNotifierProvider).playerId,
+                          ),
+                        )
+                        .object,
                     style: KTextStyle.heading3,
                   ),
                   SizedBox(height: 10),
                   Text("Location", style: KTextStyle.heading4),
                   Text(
-                    ref.watch(playerNotifierProvider).location,
+                    ref
+                        .watch(
+                          playerNotifierProvider(
+                            ref.read(localDataNotifierProvider).playerId,
+                          ),
+                        )
+                        .location,
                     style: KTextStyle.heading3,
                   ),
                   SizedBox(height: 30),
@@ -84,22 +93,24 @@ class _MissionPageState extends ConsumerState<MissionPage> {
                           return AlertDialog.adaptive(
                             title: Text("Confirm Elimination"),
                             content: Text(
-                              "Are you sure you want to eliminate ${ref.watch(playerNotifierProvider).targetName}?",
+                              "Are you sure you want to eliminate ${ref.watch(playerNotifierProvider(ref.read(localDataNotifierProvider).playerId)).targetName}?",
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () {
+                                  print("Elimination Cancelled");
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("No"),
+                                child: Text("NO"),
                               ),
                               TextButton(
                                 onPressed: () {
                                   // Logic to eliminate the target
-                                  print("Target eliminated!");
+                                  requestElimination();
+                                  print("Elimination Requested");
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Yes"),
+                                child: Text("YES"),
                               ),
                             ],
                           );
@@ -120,25 +131,29 @@ class _MissionPageState extends ConsumerState<MissionPage> {
     );
   }
 
-  // void updatePlayer() async {
-  //   print("Updating player...");
-  //   final data = await supabase
-  //       .from('players')
-  //       .select()
-  //       .eq('player_name', ref.read(playerNotifierProvider).playerName)
-  //       .eq('game_code', ref.read(playerNotifierProvider).gameCode);
+  void requestElimination() async {
+    // Get target ID
+    final targetData =
+        await supabase
+            .from('players')
+            .select()
+            .eq('game_code', ref.read(localDataNotifierProvider).gameCode)
+            .eq(
+              'player_name',
+              ref
+                  .read(
+                    playerNotifierProvider(
+                      ref.read(localDataNotifierProvider).playerId,
+                    ),
+                  )
+                  .targetName,
+            )
+            .single();
 
-  //   ref
-  //       .read(playerNotifierProvider.notifier)
-  //       .setPlayerName(data[0]['player_name']);
-  //   ref
-  //       .read(playerNotifierProvider.notifier)
-  //       .setTargetName(data[0]['target_name']);
-  //   ref.read(playerNotifierProvider.notifier).setObject(data[0]['object']);
-  //   ref.read(playerNotifierProvider.notifier).setLocation(data[0]['location']);
-
-  //   playerUpdated = true;
-  //   setState(() {});
-  //   print("Player updated!");
-  // }
+    await supabase.from('eliminations').insert({
+      'requestor_id': ref.read(localDataNotifierProvider).playerId,
+      'responder_id': targetData['id'],
+      'game_code': ref.read(localDataNotifierProvider).gameCode,
+    });
+  }
 }

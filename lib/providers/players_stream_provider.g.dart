@@ -6,7 +6,7 @@ part of 'players_stream_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$playersStreamHash() => r'fea7197a2f5e9ec832d4f7bbaae84c24e882fc8b';
+String _$playersStreamHash() => r'1652d86fca7325c74b5f2690556fc757da02ab15';
 
 /// Copied from Dart SDK
 class _SystemHash {

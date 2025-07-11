@@ -9,10 +9,8 @@ part 'player_notifier_provider.g.dart';
 @riverpod
 class PlayerNotifier extends _$PlayerNotifier {
   @override
-  Player build() {
+  Player build(playerId) {
     final gameCode = ref.read(localDataNotifierProvider).gameCode;
-    final playerId = ref.read(localDataNotifierProvider).playerId;
-    final isCreator = ref.read(localDataNotifierProvider).isCreator;
 
     final playerListAsync = ref.watch(playersStreamProvider(gameCode));
 
@@ -27,7 +25,7 @@ class PlayerNotifier extends _$PlayerNotifier {
                 location: "Unknown",
                 object: "Unknown",
                 gameCode: gameCode,
-                isCreator: isCreator,
+                isCreator: false,
               ),
       loading:
           () => Player(
@@ -37,7 +35,7 @@ class PlayerNotifier extends _$PlayerNotifier {
             location: "Loading...",
             object: "Loading...",
             gameCode: gameCode,
-            isCreator: isCreator,
+            isCreator: false,
           ),
       error: (error, stack) {
         print("Error fetching player: $error");
@@ -49,7 +47,7 @@ class PlayerNotifier extends _$PlayerNotifier {
           location: "Error",
           object: "Error",
           gameCode: gameCode,
-          isCreator: isCreator,
+          isCreator: false,
         );
       },
     );

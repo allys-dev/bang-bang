@@ -4,6 +4,7 @@ class Elimination {
   final String requestorId;
   final String responderId;
   final bool confirmation;
+  final bool requestor_seen;
   final String gameCode;
 
   Elimination({
@@ -12,6 +13,7 @@ class Elimination {
     required this.requestorId,
     required this.responderId,
     required this.confirmation,
+    required this.requestor_seen,
     required this.gameCode,
   });
 
@@ -22,6 +24,7 @@ class Elimination {
       requestorId: json['requestor_id'] as String,
       responderId: json['responder_id'] as String,
       confirmation: json['confirmation'] as bool,
+      requestor_seen: json['requestor_seen'] as bool,
       gameCode: json['game_code'] as String,
     );
   }
@@ -33,6 +36,7 @@ class Elimination {
       'requestor_id': requestorId,
       'responder_id': responderId,
       'confirmation': confirmation,
+      'requestor_seen': requestor_seen,
       'game_code': gameCode,
     };
   }
@@ -43,6 +47,7 @@ class Elimination {
     String? requestorId,
     String? responderId,
     bool? confirmation,
+    bool? requestor_seen,
     String? gameCode,
   }) {
     return Elimination(
@@ -51,6 +56,7 @@ class Elimination {
       requestorId: requestorId ?? this.requestorId,
       responderId: responderId ?? this.responderId,
       confirmation: confirmation ?? this.confirmation,
+      requestor_seen: requestor_seen ?? this.confirmation,
       gameCode: gameCode ?? this.gameCode,
     );
   }
