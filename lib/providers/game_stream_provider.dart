@@ -20,9 +20,5 @@ class GameStream extends _$GameStream {
         .from('game_rooms')
         .update({'started': true})
         .eq('game_code', gameCode);
-
-    // if (response.error != null) {
-    //   throw Exception('Failed to start game: ${response.error!.message}');
-    // }
   }
 }

@@ -28,4 +28,23 @@ class PlayersStream extends _$PlayersStream {
       }
     }
   }
+
+  Future<void> transferMission(String attackerId, String targetId) async {
+    print("Transferring mission from $attackerId to $targetId");
+    final response = await supabase
+        .from('players')
+        .select()
+        .eq('id', targetId);
+    
+    await supabase
+        .from('players')
+        .update({
+          'target_name': response[0]['target_name'],
+          'object': response[0]['object'],
+          'location': response[0]['location'],
+        })
+        .eq('id', attackerId);
+
+    
+  }
 }

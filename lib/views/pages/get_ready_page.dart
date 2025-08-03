@@ -19,6 +19,7 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("GetReadyPage build called");
     return Scaffold(
       appBar: AppBar(),
       body: Center(
@@ -90,14 +91,19 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
   }
 
   void createPlayer() async {
+    print("before inserting player");
     await supabase.from('players').insert({
       'player_name': nameController.text,
       'target_name': nameController.text,
       'object': objectController.text,
       'location': locationController.text,
+      'score': 0,
       'game_code': ref.read(localDataNotifierProvider).gameCode,
       'is_creator': ref.read(localDataNotifierProvider).isCreator,
     });
+
+    //Print name
+    print("*** I am player: ${nameController.text}***");
 
     // Get unique player ID
     final playerData =

@@ -1,5 +1,7 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
+import 'package:bang_bang/models/elimination.dart';
+import 'package:bang_bang/providers/elimination_stream_provider.dart';
 import 'package:bang_bang/providers/local_data_notifier_provider.dart';
 import 'package:bang_bang/providers/player_notifier_provider.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ class MissionPage extends ConsumerStatefulWidget {
 class _MissionPageState extends ConsumerState<MissionPage> {
   late final SupabaseStreamBuilder gameStream;
   bool playerUpdated = false;
+  // List<Elimination>? _previousEliminations;
 
   @override
   void initState() {
@@ -151,8 +154,8 @@ class _MissionPageState extends ConsumerState<MissionPage> {
             .single();
 
     await supabase.from('eliminations').insert({
-      'requestor_id': ref.read(localDataNotifierProvider).playerId,
-      'responder_id': targetData['id'],
+      'attacker_id': ref.read(localDataNotifierProvider).playerId,
+      'target_id': targetData['id'],
       'game_code': ref.read(localDataNotifierProvider).gameCode,
     });
   }

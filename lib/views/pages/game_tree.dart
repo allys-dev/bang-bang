@@ -5,6 +5,7 @@ import 'package:bang_bang/providers/elimination_stream_provider.dart';
 import 'package:bang_bang/providers/player_notifier_provider.dart';
 // import 'package:bang_bang/providers/players_stream_provider.dart';
 import 'package:bang_bang/providers/local_data_notifier_provider.dart';
+import 'package:bang_bang/providers/players_stream_provider.dart';
 import 'package:bang_bang/views/pages/how_to_page.dart';
 import 'package:bang_bang/views/pages/mission_page.dart';
 import 'package:bang_bang/views/pages/scoreboard_page.dart';
@@ -21,7 +22,11 @@ class GameTree extends ConsumerStatefulWidget {
 }
 
 class _GameTreeState extends ConsumerState<GameTree> {
-  List<Elimination>? _previousEliminations;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,70 +37,87 @@ class _GameTreeState extends ConsumerState<GameTree> {
       eliminationStreamProvider(ref.read(localDataNotifierProvider).gameCode),
     );
 
+    // ref.read(eliminationStreamProvider(ref.read(localDataNotifierProvider).gameCode)
+    // );
+
     ref.listen<
       AsyncValue<List<Elimination>>
     >(eliminationStreamProvider(ref.read(localDataNotifierProvider).gameCode), (
       previous,
       next,
     ) {
-      next.whenData((currentEliminations) {
-        print("elimination stream new data");
-        // Check previous eliminations for progress
-        for (final elimination in currentEliminations) {
-          if (!elimination.requestor_seen &&
-              elimination.requestorId ==
-                  ref.read(localDataNotifierProvider).playerId) {
-            if (elimination.confirmation) {
-              // Elimination confirmed
-              print("Elimination confirmed");
-            } else if (!elimination.confirmation) {
-              // Elimination cancelled
-              print("Elimination cancelled");
-            } else {
-              print(
-                "Still waiting on confirmation for elimination: ${elimination.id}",
-              );
-            }
-          }
-        }
+      print("Elimination stream has new data");
+      next.when(
+        data: (currentEliminations) {
+          for (final elimination in currentEliminations) {
+            if (!elimination.attackerSeen &&
+                elimination.attackerId ==
+                    ref.read(localDataNotifierProvider).playerId) {
+              if (elimination.targetConfirmation == true) {
+                // Add a point to the attacker
+                ref.read(playerNotifierProvider(
+                  elimination.attackerId,
+                ).notifier).addPoint();
 
-        //Check for new eliminations
-        List<Elimination> newEliminations;
-        if (_previousEliminations != null &&
-            _previousEliminations!.isNotEmpty) {
-          // Check for new eliminations
-          if (currentEliminations.length > _previousEliminations!.length) {
-            newEliminations =
-                currentEliminations
-                    .where(
-                      (elimination) =>
-                          !_previousEliminations!.any(
-                            (prev) => prev.id == elimination.id,
-                          ),
+                // Transfer mission from target to attacker
+                ref.read(playersStreamProvider(
+                  ref.read(localDataNotifierProvider).gameCode).notifier
+                ).transferMission(
+                  elimination.attackerId,
+                  elimination.targetId,
+                );
+
+                // Mark the elimination as seen
+                ref
+                    .read(
+                      eliminationStreamProvider(
+                        ref.read(localDataNotifierProvider).gameCode,
+                      ).notifier,
                     )
-                    .toList();
-          } else {
-            newEliminations = currentEliminations;
-          }
-        } else {
-          newEliminations = currentEliminations;
-        }
+                    .setAttackerSeen(elimination.id);
 
-        if (newEliminations.isNotEmpty) {
-          for (final elimination in newEliminations) {
-            // Check responder
-            if (elimination.responderId ==
-                ref.read(localDataNotifierProvider).playerId) {
+              } else if (elimination.targetConfirmation == false) {
+                _showDeniedDialog(elimination);
+
+                // Mark the elimination as seen
+                ref
+                    .read(
+                      eliminationStreamProvider(
+                        ref.read(localDataNotifierProvider).gameCode,
+                      ).notifier,
+                    )
+                    .setAttackerSeen(elimination.id);
+              } else {
+                print(
+                  "Still waiting on confirmation for elimination: ${elimination.id}",
+                );
+              }
+            }
+
+            if (elimination.targetId ==
+                    ref.read(localDataNotifierProvider).playerId &&
+                elimination.targetConfirmation == null) {
+              // Handle the responder's actions if needed
+              print(
+                "Responder for elimination: ${elimination.id} is the current player",
+              );
+
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                print("Showing elimination dialog for: ${elimination.id}");
                 _showEliminationDialog(elimination);
               });
             }
           }
-        }
-
-        _previousEliminations = currentEliminations;
-      });
+        },
+        error: (error, stack) {
+          print("Elimination stream error: $error");
+        },
+        loading: () {
+          print("Elimination stream loading");
+        },
+      );
     });
+
     return Scaffold(
       appBar: AppBar(),
       body: ValueListenableBuilder(
@@ -108,6 +130,26 @@ class _GameTreeState extends ConsumerState<GameTree> {
     );
   }
 
+  void _showDeniedDialog(Elimination elimination) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Elimination Denied'),
+        content: Text(
+          'Word is you tried to eliminate ${ref.read(playerNotifierProvider(elimination.targetId)).playerName}, but they denied it.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showEliminationDialog(Elimination elimination) {
     showDialog(
       context: context,
@@ -115,19 +157,31 @@ class _GameTreeState extends ConsumerState<GameTree> {
           (context) => AlertDialog(
             title: Text('Bang Bang You\'re Dead!'),
             content: Text(
-              'World is ${ref.read(playerNotifierProvider(elimination.requestorId)).playerName} murdered you, is this true?',
+              'Word is ${ref.read(playerNotifierProvider(elimination.attackerId)).playerName} murdered you, is this true?',
             ),
             actions: [
               TextButton(
                 onPressed: () {
-                  eliminationResponse(elimination, true);
+                  ref
+                      .read(
+                        eliminationStreamProvider(
+                          ref.read(localDataNotifierProvider).gameCode,
+                        ).notifier,
+                      )
+                      .setTargetConfirmation(elimination.id, true);
                   Navigator.of(context).pop();
                 },
                 child: Text('YES'),
               ),
               TextButton(
                 onPressed: () {
-                  eliminationResponse(elimination, false);
+                  ref
+                      .read(
+                        eliminationStreamProvider(
+                          ref.read(localDataNotifierProvider).gameCode,
+                        ).notifier,
+                      )
+                      .setTargetConfirmation(elimination.id, false);
                   Navigator.of(context).pop();
                 },
                 child: Text('NO'),
@@ -135,22 +189,5 @@ class _GameTreeState extends ConsumerState<GameTree> {
             ],
           ),
     );
-  }
-
-  Future<void> eliminationResponse(
-    Elimination elimination,
-    bool response,
-  ) async {
-    await supabase
-        .from('eliminations')
-        .update({'confirmation': response})
-        .eq('id', elimination.id);
-  }
-
-  Future<void> eliminationSeen(Elimination elimination, bool response) async {
-    await supabase
-        .from('eliminations')
-        .update({'confirmation': response})
-        .eq('id', elimination.id);
   }
 }

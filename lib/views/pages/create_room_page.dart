@@ -125,19 +125,26 @@ class _CreateRoomPageState extends ConsumerState<CreateRoomPage> {
   }
 
   Future<void> createGameRoom() async {
+    print("before rpc gen_room_code call");
     gameCode = await supabase.rpc('gen_room_code') as String;
-
+    print("after rpc gen_room_code call");
     ref.read(localDataNotifierProvider.notifier).setGameCode(gameCode);
     print("gameCode: $gameCode");
     print(
       "gameCode from provider: ${ref.read(localDataNotifierProvider).gameCode}",
     );
 
+    print("before inserting game room");
+    print("gameCode: $gameCode");
+    print("roomName: ${roomNameController.text}");
+    print("selectedPlayerNum: $selectedPlayerNum");
+    print("selectedDuration: ${durationOptions[selectedDuration]}");
     await supabase.from('game_rooms').insert({
       'game_code': gameCode,
       'room_name': roomNameController.text,
       'players': selectedPlayerNum,
       'duration': durationOptions[selectedDuration],
     });
+    print("after inserting game room");
   }
 }

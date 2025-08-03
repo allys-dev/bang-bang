@@ -1,3 +1,4 @@
+import 'package:bang_bang/main.dart';
 import 'package:bang_bang/models/player.dart';
 import 'package:bang_bang/providers/local_data_notifier_provider.dart';
 import 'package:bang_bang/providers/players_stream_provider.dart';
@@ -24,6 +25,7 @@ class PlayerNotifier extends _$PlayerNotifier {
                 targetName: "Unknown",
                 location: "Unknown",
                 object: "Unknown",
+                score: 0,
                 gameCode: gameCode,
                 isCreator: false,
               ),
@@ -34,6 +36,7 @@ class PlayerNotifier extends _$PlayerNotifier {
             targetName: "Loading...",
             location: "Loading...",
             object: "Loading...",
+            score: 0,
             gameCode: gameCode,
             isCreator: false,
           ),
@@ -46,10 +49,18 @@ class PlayerNotifier extends _$PlayerNotifier {
           targetName: "Error",
           location: "Error",
           object: "Error",
+          score: 0,
           gameCode: gameCode,
           isCreator: false,
         );
       },
     );
+  }
+
+  Future<void> addPoint() async {
+    await supabase
+        .from('players')
+        .update({'score': state.score + 1})
+        .eq('id', state.id);
   }
 }

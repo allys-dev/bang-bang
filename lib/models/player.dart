@@ -4,6 +4,7 @@ class Player {
   String targetName;
   String object;
   String location;
+  int score;
   String gameCode;
   bool isCreator;
 
@@ -13,6 +14,7 @@ class Player {
     required this.targetName,
     required this.object,
     required this.location,
+    this.score = 0,
     required this.gameCode,
     this.isCreator = false,
   });
@@ -24,6 +26,7 @@ class Player {
       targetName: json['target_name'] as String,
       object: json['object'] as String,
       location: json['location'] as String,
+      score: json['score'] as int? ?? 0,
       gameCode: json['game_code'] as String,
       isCreator: json['is_creator'] as bool? ?? false,
     );
@@ -36,6 +39,7 @@ class Player {
       'target_name': targetName,
       'object': object,
       'location': location,
+      'score': score,
       'game_code': gameCode,
       'is_creator': isCreator,
     };
@@ -47,6 +51,7 @@ class Player {
     String? targetName,
     String? object,
     String? location,
+    int? score,
     String? gameCode,
     bool? isCreator,
   }) {
@@ -56,6 +61,7 @@ class Player {
       targetName: targetName ?? this.targetName,
       object: object ?? this.object,
       location: location ?? this.location,
+      score: score ?? this.score,
       gameCode: gameCode ?? this.gameCode,
       isCreator: isCreator ?? this.isCreator,
     );
