@@ -28,6 +28,7 @@ class PlayerNotifier extends _$PlayerNotifier {
                 score: 0,
                 gameCode: gameCode,
                 isCreator: false,
+                eliminated: false,
               ),
       loading:
           () => Player(
@@ -39,6 +40,7 @@ class PlayerNotifier extends _$PlayerNotifier {
             score: 0,
             gameCode: gameCode,
             isCreator: false,
+            eliminated: false,
           ),
       error: (error, stack) {
         print("Error fetching player: $error");
@@ -52,6 +54,7 @@ class PlayerNotifier extends _$PlayerNotifier {
           score: 0,
           gameCode: gameCode,
           isCreator: false,
+          eliminated: false,
         );
       },
     );
@@ -61,6 +64,20 @@ class PlayerNotifier extends _$PlayerNotifier {
     await supabase
         .from('players')
         .update({'score': state.score + 1})
+        .eq('id', state.id);
+  }
+
+  Future<void> setWaiting(bool waiting) async {
+    await supabase
+        .from('players')
+        .update({'waiting': waiting})
+        .eq('id', state.id);
+  }
+
+  Future<void> setEliminated() async {
+    await supabase
+        .from('players')
+        .update({'eliminated': true})
         .eq('id', state.id);
   }
 }

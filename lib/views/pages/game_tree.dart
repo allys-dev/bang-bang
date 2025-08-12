@@ -22,7 +22,6 @@ class GameTree extends ConsumerStatefulWidget {
 }
 
 class _GameTreeState extends ConsumerState<GameTree> {
-
   @override
   void initState() {
     super.initState();
@@ -55,17 +54,31 @@ class _GameTreeState extends ConsumerState<GameTree> {
                     ref.read(localDataNotifierProvider).playerId) {
               if (elimination.targetConfirmation == true) {
                 // Add a point to the attacker
-                ref.read(playerNotifierProvider(
-                  elimination.attackerId,
-                ).notifier).addPoint();
+                ref
+                    .read(
+                      playerNotifierProvider(elimination.attackerId).notifier,
+                    )
+                    .addPoint();
 
                 // Transfer mission from target to attacker
-                ref.read(playersStreamProvider(
-                  ref.read(localDataNotifierProvider).gameCode).notifier
-                ).transferMission(
-                  elimination.attackerId,
-                  elimination.targetId,
-                );
+                ref
+                    .read(
+                      playersStreamProvider(
+                        ref.read(localDataNotifierProvider).gameCode,
+                      ).notifier,
+                    )
+                    .transferMission(
+                      elimination.attackerId,
+                      elimination.targetId,
+                    );
+
+                ref
+                    .read(
+                      playerNotifierProvider(
+                        ref.read(localDataNotifierProvider).playerId,
+                      ).notifier,
+                    )
+                    .setWaiting(false);
 
                 // Mark the elimination as seen
                 ref
@@ -75,7 +88,6 @@ class _GameTreeState extends ConsumerState<GameTree> {
                       ).notifier,
                     )
                     .setAttackerSeen(elimination.id);
-
               } else if (elimination.targetConfirmation == false) {
                 _showDeniedDialog(elimination);
 
@@ -133,20 +145,28 @@ class _GameTreeState extends ConsumerState<GameTree> {
   void _showDeniedDialog(Elimination elimination) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Elimination Denied'),
-        content: Text(
-          'Word is you tried to eliminate ${ref.read(playerNotifierProvider(elimination.targetId)).playerName}, but they denied it.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('OK'),
+      builder:
+          (context) => AlertDialog(
+            title: Text('Elimination Denied'),
+            content: Text(
+              'Word is you tried to eliminate ${ref.read(playerNotifierProvider(elimination.targetId)).playerName}, but they denied it.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  ref
+                      .read(
+                        playerNotifierProvider(
+                          ref.read(localDataNotifierProvider).playerId,
+                        ).notifier,
+                      )
+                      .setWaiting(false);
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -169,6 +189,13 @@ class _GameTreeState extends ConsumerState<GameTree> {
                         ).notifier,
                       )
                       .setTargetConfirmation(elimination.id, true);
+
+                  ref
+                      .read(
+                        playerNotifierProvider(elimination.targetId).notifier,
+                      )
+                      .setEliminated();
+
                   Navigator.of(context).pop();
                 },
                 child: Text('YES'),
