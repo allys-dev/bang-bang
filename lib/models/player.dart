@@ -9,6 +9,7 @@ class Player {
   bool isCreator;
   bool eliminated;
   bool waiting;
+  int eliminationScore;
 
   Player({
     required this.id,
@@ -21,6 +22,7 @@ class Player {
     this.isCreator = false,
     this.eliminated = false,
     this.waiting = false,
+    this.eliminationScore = 0,
   });
 
   factory Player.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class Player {
       isCreator: json['is_creator'] as bool? ?? false,
       eliminated: json['eliminated'] as bool? ?? false,
       waiting: json['waiting'] as bool? ?? false,
+      eliminationScore: json['elimination_score'] as int? ?? 0,
     );
   }
 
@@ -50,6 +53,7 @@ class Player {
       'is_creator': isCreator,
       'eliminated': eliminated,
       'waiting': waiting,
+      'elimination_score': eliminationScore,
     };
   }
 
@@ -64,6 +68,7 @@ class Player {
     bool? isCreator,
     bool? eliminated,
     bool? waiting,
+    int? eliminationScore,
   }) {
     return Player(
       id: id ?? this.id,
@@ -76,6 +81,7 @@ class Player {
       isCreator: isCreator ?? this.isCreator,
       eliminated: eliminated ?? this.eliminated,
       waiting: waiting ?? this.waiting,
+      eliminationScore: eliminationScore ?? this.eliminationScore,
     );
   }
 }

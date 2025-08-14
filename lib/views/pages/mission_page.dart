@@ -134,13 +134,6 @@ class _MissionPageState extends ConsumerState<MissionPage> {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            print("Elimination Cancelled");
-                            Navigator.of(context).pop();
-                          },
-                          child: Text("NO"),
-                        ),
-                        TextButton(
-                          onPressed: () {
                             // Logic to eliminate the target
                             requestElimination();
                             ref
@@ -156,6 +149,13 @@ class _MissionPageState extends ConsumerState<MissionPage> {
                             Navigator.of(context).pop();
                           },
                           child: Text("YES"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            print("Elimination Cancelled");
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("NO"),
                         ),
                       ],
                     );

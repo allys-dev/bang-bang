@@ -29,6 +29,7 @@ class PlayerNotifier extends _$PlayerNotifier {
                 gameCode: gameCode,
                 isCreator: false,
                 eliminated: false,
+                eliminationScore: 0,
               ),
       loading:
           () => Player(
@@ -41,6 +42,7 @@ class PlayerNotifier extends _$PlayerNotifier {
             gameCode: gameCode,
             isCreator: false,
             eliminated: false,
+            eliminationScore: 0,
           ),
       error: (error, stack) {
         print("Error fetching player: $error");
@@ -55,6 +57,7 @@ class PlayerNotifier extends _$PlayerNotifier {
           gameCode: gameCode,
           isCreator: false,
           eliminated: false,
+          eliminationScore: 0,
         );
       },
     );

@@ -5,6 +5,7 @@ class Game {
   final int duration;
   final String createdAt;
   final bool started;
+  final int eliminated;
 
   Game({
     required this.gameCode,
@@ -13,6 +14,7 @@ class Game {
     required this.duration,
     required this.createdAt,
     required this.started,
+    required this.eliminated,
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Game {
       duration: json['duration'] as int,
       createdAt: json['created_at'] as String,
       started: json['started'] as bool,
+      eliminated: json['eliminated'] as int,
     );
   }
 
@@ -34,6 +37,7 @@ class Game {
       'duration': duration,
       'created_at': createdAt,
       'started': started,
+      'eliminated': eliminated,
     };
   }
 
@@ -44,6 +48,7 @@ class Game {
     int? duration,
     String? createdAt,
     bool? started,
+    int? eliminated,
   }) {
     return Game(
       gameCode: gameCode ?? this.gameCode,
@@ -52,6 +57,7 @@ class Game {
       duration: duration ?? this.duration,
       createdAt: createdAt ?? this.createdAt,
       started: started ?? this.started,
+      eliminated: eliminated ?? this.eliminated,
     );
   }
 }
