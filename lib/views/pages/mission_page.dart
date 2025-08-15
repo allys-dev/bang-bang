@@ -18,41 +18,25 @@ class _MissionPageState extends ConsumerState<MissionPage> {
   bool playerUpdated = false;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Center(child: getWidget());
   }
 
   Widget getWidget() {
-    if (ref
-                .watch(
-                  playerNotifierProvider(
-                    ref.read(localDataNotifierProvider).playerId,
-                  ),
-                )
-                .playerName ==
+    final localDataAsync = ref.watch(localDataNotifierProvider);
+
+    if (localDataAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final localData = localDataAsync.value!;
+
+    if (ref.watch(playerNotifierProvider(localData.playerId)).playerName ==
             "Error" ||
-        ref
-                .watch(
-                  playerNotifierProvider(
-                    ref.read(localDataNotifierProvider).playerId,
-                  ),
-                )
-                .playerName ==
+        ref.watch(playerNotifierProvider(localData.playerId)).playerName ==
             "Unknown") {
       return const Center(child: CircularProgressIndicator());
     } else {
-      if (ref
-          .watch(
-            playerNotifierProvider(
-              ref.read(localDataNotifierProvider).playerId,
-            ),
-          )
-          .eliminated) {
+      if (ref.watch(playerNotifierProvider(localData.playerId)).eliminated) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -74,46 +58,22 @@ class _MissionPageState extends ConsumerState<MissionPage> {
             SizedBox(height: 20),
             Text("Your Target", style: KTextStyle.heading4),
             Text(
-              ref
-                  .watch(
-                    playerNotifierProvider(
-                      ref.read(localDataNotifierProvider).playerId,
-                    ),
-                  )
-                  .targetName,
+              ref.watch(playerNotifierProvider(localData.playerId)).targetName,
               style: KTextStyle.heading3,
             ),
             SizedBox(height: 10),
             Text("Object", style: KTextStyle.heading4),
             Text(
-              ref
-                  .watch(
-                    playerNotifierProvider(
-                      ref.read(localDataNotifierProvider).playerId,
-                    ),
-                  )
-                  .object,
+              ref.watch(playerNotifierProvider(localData.playerId)).object,
               style: KTextStyle.heading3,
             ),
             SizedBox(height: 10),
             Text("Location", style: KTextStyle.heading4),
             Text(
-              ref
-                  .watch(
-                    playerNotifierProvider(
-                      ref.read(localDataNotifierProvider).playerId,
-                    ),
-                  )
-                  .location,
+              ref.watch(playerNotifierProvider(localData.playerId)).location,
               style: KTextStyle.heading3,
             ),
-            (ref
-                    .watch(
-                      playerNotifierProvider(
-                        ref.read(localDataNotifierProvider).playerId,
-                      ),
-                    )
-                    .waiting)
+            (ref.watch(playerNotifierProvider(localData.playerId)).waiting)
                 ? Text(
                   "Awaiting kill\nconfirmation",
                   style: KTextStyle.heading1,
@@ -129,19 +89,17 @@ class _MissionPageState extends ConsumerState<MissionPage> {
                     return AlertDialog.adaptive(
                       title: Text("Confirm Elimination"),
                       content: Text(
-                        "Are you sure you want to eliminate ${ref.watch(playerNotifierProvider(ref.read(localDataNotifierProvider).playerId)).targetName}?",
+                        "Are you sure you want to eliminate ${ref.watch(playerNotifierProvider(localData.playerId)).targetName}?",
                       ),
                       actions: [
                         TextButton(
                           onPressed: () {
                             // Logic to eliminate the target
-                            requestElimination();
+                            requestElimination(localData);
                             ref
                                 .read(
                                   playerNotifierProvider(
-                                    ref
-                                        .read(localDataNotifierProvider)
-                                        .playerId,
+                                    localData.playerId,
                                   ).notifier,
                                 )
                                 .setWaiting(true);
@@ -177,29 +135,23 @@ class _MissionPageState extends ConsumerState<MissionPage> {
     }
   }
 
-  void requestElimination() async {
+  void requestElimination(LocalData localData) async {
     // Get target ID
     final targetData =
         await supabase
             .from('players')
             .select()
-            .eq('game_code', ref.read(localDataNotifierProvider).gameCode)
+            .eq('game_code', localData.gameCode)
             .eq(
               'player_name',
-              ref
-                  .read(
-                    playerNotifierProvider(
-                      ref.read(localDataNotifierProvider).playerId,
-                    ),
-                  )
-                  .targetName,
+              ref.read(playerNotifierProvider(localData.playerId)).targetName,
             )
             .single();
 
     await supabase.from('eliminations').insert({
-      'attacker_id': ref.read(localDataNotifierProvider).playerId,
+      'attacker_id': localData.playerId,
       'target_id': targetData['id'],
-      'game_code': ref.read(localDataNotifierProvider).gameCode,
+      'game_code': localData.gameCode,
     });
   }
 }

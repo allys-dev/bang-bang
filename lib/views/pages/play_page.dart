@@ -1,7 +1,7 @@
 import 'package:bang_bang/data/constants.dart';
-import 'package:bang_bang/views/pages/create_room_page.dart';
-import 'package:bang_bang/views/pages/join_room_page.dart';
+import 'package:bang_bang/routes/route_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PlayPage extends StatelessWidget {
   const PlayPage({super.key});
@@ -18,15 +18,7 @@ class PlayPage extends StatelessWidget {
             Text('Let\'s Play!', style: KTextStyle.heading1),
             SizedBox(height: 50),
             ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return const CreateRoomPage();
-                    },
-                  ),
-                );
-              },
+              onPressed: () => context.pushNamed(RouteConstants.createRoompage),
               child: Text('CREATE', style: KTextStyle.heading3),
             ),
             SizedBox(height: 20),
@@ -37,15 +29,7 @@ class PlayPage extends StatelessWidget {
             ),
             SizedBox(height: 50),
             ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return const JoinRoomPage();
-                    },
-                  ),
-                );
-              },
+              onPressed: () => context.pushNamed(RouteConstants.joinRoomPage),
               child: Text('JOIN', style: KTextStyle.heading3),
             ),
             SizedBox(height: 20),

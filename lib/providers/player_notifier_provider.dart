@@ -11,7 +11,9 @@ part 'player_notifier_provider.g.dart';
 class PlayerNotifier extends _$PlayerNotifier {
   @override
   Player build(playerId) {
-    final gameCode = ref.read(localDataNotifierProvider).gameCode;
+    final localDataAsync = ref.watch(localDataNotifierProvider);
+    final localData = localDataAsync.value!;
+    final gameCode = localData.gameCode;
 
     final playerListAsync = ref.watch(playersStreamProvider(gameCode));
 

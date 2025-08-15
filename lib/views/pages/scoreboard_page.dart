@@ -14,10 +14,17 @@ class ScoreboardPage extends ConsumerStatefulWidget {
 class _ScoreboardPageState extends ConsumerState<ScoreboardPage> {
   @override
   Widget build(BuildContext context) {
+    final localDataAsync = ref.watch(localDataNotifierProvider);
 
+    if (localDataAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final localData = localDataAsync.value!;
 
-    final playersAsyncValue = ref.watch(playersStreamProvider(ref.read(localDataNotifierProvider).gameCode));
-    
+    final playersAsyncValue = ref.watch(
+      playersStreamProvider(localData.gameCode),
+    );
+
     return Center(
       child: Column(
         children: [
@@ -26,7 +33,8 @@ class _ScoreboardPageState extends ConsumerState<ScoreboardPage> {
           playersAsyncValue.when(
             data: (players) {
               // Sort players by kills in descending order
-              final sortedPlayers = [...players]..sort((a, b) => b.score.compareTo(a.score));
+              final sortedPlayers = [...players]
+                ..sort((a, b) => b.score.compareTo(a.score));
               return Container(
                 margin: EdgeInsets.all(15),
                 padding: EdgeInsets.all(15),
@@ -35,7 +43,10 @@ class _ScoreboardPageState extends ConsumerState<ScoreboardPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (final player in sortedPlayers) ...[
-                      Text("???: ${player.score} kills", style: KTextStyle.heading4),
+                      Text(
+                        "???: ${player.score} kills",
+                        style: KTextStyle.heading4,
+                      ),
                       Divider(),
                     ],
                   ],

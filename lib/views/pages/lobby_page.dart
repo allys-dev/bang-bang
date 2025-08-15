@@ -3,10 +3,11 @@ import 'package:bang_bang/main.dart';
 import 'package:bang_bang/providers/game_stream_provider.dart';
 import 'package:bang_bang/providers/local_data_notifier_provider.dart';
 import 'package:bang_bang/providers/players_stream_provider.dart';
-import 'package:bang_bang/views/pages/game_tree.dart';
+import 'package:bang_bang/routes/route_constants.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class LobbyPage extends ConsumerStatefulWidget {
   const LobbyPage({super.key});
@@ -23,15 +24,20 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
   bool isCreator = false;
 
   @override
-  void initState() {
-    super.initState();
-    isCreator = ref.read(localDataNotifierProvider).isCreator;
-    getTotalPlayers();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final gameCode = ref.read(localDataNotifierProvider).gameCode;
+    final localDataAsync = ref.watch(localDataNotifierProvider);
+
+    if (localDataAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final localData = localDataAsync.value!;
+
+
+    final isCreator = localData.isCreator;
+    final gameCode = localData.gameCode;
+
+    getTotalPlayers(gameCode);
+
     final playersAsyncValue = ref.watch(playersStreamProvider(gameCode));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -51,12 +57,9 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
 
       if (hasGameStarted) {
         print("Game has started, navigating to GameTree");
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return const GameTree();
-            },
-          ),
+        context.goNamed(
+          RouteConstants.gameTreePage,
+          pathParameters: {'gameCode': gameCode},
         );
       }
     });
@@ -79,12 +82,9 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
           SizedBox(height: 50),
           playersAsyncValue.when(
             data: (players) {
-
               while (!playersInitialised) {
                 print("Waiting for players to be initialised...");
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
+                return Center(child: CircularProgressIndicator());
               }
               joinedPlayers = players.length;
               String waitString =
@@ -115,16 +115,16 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
             style: KTextStyle.heading4,
           ),
           SizedBox(height: 50),
-          ref.read(localDataNotifierProvider).isCreator
+          isCreator
               ? ElevatedButton(
                 onPressed: () {
                   //randomise
-                  shuffleMissions();
+                  shuffleMissions(gameCode);
 
                   // Start the game
                   ref
                       .read(gameStreamProvider.notifier)
-                      .startGame(ref.read(localDataNotifierProvider).gameCode);
+                      .startGame(gameCode);
 
                   print("Game started");
                   setState(() {});
@@ -137,24 +137,24 @@ class _LobbyPageState extends ConsumerState<LobbyPage> {
     );
   }
 
-  Future<void> getTotalPlayers() async {
+  Future<void> getTotalPlayers(String gameCode) async {
     print("getting total players");
     final data = await supabase
         .from('game_rooms')
         .select('game_code, players')
-        .eq('game_code', ref.read(localDataNotifierProvider).gameCode);
+        .eq('game_code', gameCode);
     totalPlayers = data[0]["players"];
     playersInitialised = true;
     print("Total players: $totalPlayers");
   }
 
-  Future<void> shuffleMissions() async {
+  Future<void> shuffleMissions(String gameCode) async {
     try {
       // Call the shuffle_missions function
       await supabase.rpc(
         'shuffle_missions',
         params: {
-          'game_code_input': ref.read(localDataNotifierProvider).gameCode,
+          'game_code_input': gameCode,
         },
       );
     } catch (e) {

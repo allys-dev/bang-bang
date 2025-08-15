@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
+import 'package:bang_bang/providers/game_stream_provider.dart';
 import 'package:bang_bang/providers/local_data_notifier_provider.dart';
-import 'package:bang_bang/views/pages/get_ready_page.dart';
+import 'package:bang_bang/routes/route_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class CreateRoomPage extends ConsumerStatefulWidget {
   const CreateRoomPage({super.key});
@@ -31,6 +35,7 @@ class _CreateRoomPageState extends ConsumerState<CreateRoomPage> {
   int selectedPlayerNum = 4;
   TextEditingController roomNameController = TextEditingController();
   String gameCode = '00000';
+  bool roomCreated = false;
 
   @override
   Widget build(BuildContext context) {
@@ -102,19 +107,109 @@ class _CreateRoomPageState extends ConsumerState<CreateRoomPage> {
             SizedBox(height: 80),
             ElevatedButton(
               onPressed: () async {
-                ref.read(localDataNotifierProvider.notifier).setIsCreator(true);
+                try {
+                  final generatedGameCode =
+                      await supabase.rpc('gen_room_code') as String;
 
-                await createGameRoom();
+                  if (!mounted) return;
 
-                if (context.mounted) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) {
-                        return GetReadyPage();
-                      },
-                    ),
-                  );
+                  // Navigate IMMEDIATELY - don't wait for anything
+                  if (context.mounted) {
+                    final result = context.pushNamed(
+                      RouteConstants.getReadyPage,
+                    );
+
+                    // Handle state updates in background
+                    _updateStateInBackground(generatedGameCode);
+
+                    // Optionally await the navigation if you need to
+                    // await result;
+                  }
+                } catch (error) {
+                  print('Error creating room: $error');
                 }
+
+                // print('Button pressed, mounted: $mounted');
+
+                // // Generate game code before async calls
+                // final generatedGameCode =
+                //     await supabase.rpc('gen_room_code') as String;
+
+                // // Navigate FIRST, then update providers
+                // if (context.mounted) {
+                //   context.pushNamed(RouteConstants.getReadyPage);
+
+                //   // Update providers after navigation starts
+                //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+                //     if (mounted) {
+                //       print('Caching providers, mounted: $mounted');
+                //       final localNotifier = ref.read(
+                //         localDataNotifierProvider.notifier,
+                //       );
+                //       final gameStreamNotifier = ref.read(
+                //         gameStreamProvider.notifier,
+                //       );
+
+                //       print('Setting creator, mounted: $mounted');
+
+                //       await localNotifier.setIsCreator(true);
+
+                //       print('Setting game code, mounted: $mounted');
+                //       await localNotifier.setGameCode(generatedGameCode);
+
+                //       print('Creating room, mounted: $mounted');
+                //       await gameStreamNotifier.createGameRoom(
+                //         generatedGameCode,
+                //         roomNameController.text,
+                //         selectedPlayerNum,
+                //         durationOptions[selectedDuration]!,
+                //       );
+
+                //       print('Finished creating room, mounted: $mounted');
+                //     } else {
+                //       // Handle the case where the widget is no longer mounted
+                //       print(
+                //         'Widget is no longer mounted, cannot update providers.',
+                //       );
+                //     }
+                //   });
+                // } else {
+                //   // Handle the case where the widget is no longer mounted
+                //   print('Widget is no longer mounted, cannot navigate.');
+                // }
+
+                // // print('Caching providers, mounted: $mounted');
+
+                // // // Cache providers before awaiting
+                // // final localNotifier = ref.read(
+                // //   localDataNotifierProvider.notifier,
+                // // );
+                // // final gameStreamNotifier = ref.read(
+                // //   gameStreamProvider.notifier,
+                // // );
+
+                // // print('Setting creator, mounted: $mounted');
+
+                // // await localNotifier.setIsCreator(true);
+
+                // // print('Setting game code, mounted: $mounted');
+                // // await localNotifier.setGameCode(generatedGameCode);
+
+                // // print('Creating room, mounted: $mounted');
+                // // await gameStreamNotifier.createGameRoom(
+                // //   generatedGameCode,
+                // //   roomNameController.text,
+                // //   selectedPlayerNum,
+                // //   durationOptions[selectedDuration]!,
+                // // );
+
+                // // print('About to navigate, mounted: $mounted');
+                // // if (mounted) {
+                // //   context.pushNamed(RouteConstants.getReadyPage);
+                // // } else {
+                // //   // Handle the case where the widget is no longer mounted
+                // //   print('Widget is no longer mounted, cannot navigate.');
+                // // }
               },
               child: Text('BEGIN', style: KTextStyle.heading1),
             ),
@@ -124,27 +219,33 @@ class _CreateRoomPageState extends ConsumerState<CreateRoomPage> {
     );
   }
 
-  Future<void> createGameRoom() async {
-    print("before rpc gen_room_code call");
-    gameCode = await supabase.rpc('gen_room_code') as String;
-    print("after rpc gen_room_code call");
-    ref.read(localDataNotifierProvider.notifier).setGameCode(gameCode);
-    print("gameCode: $gameCode");
-    print(
-      "gameCode from provider: ${ref.read(localDataNotifierProvider).gameCode}",
-    );
+  // Separate method for background updates
+  void _updateStateInBackground(String generatedGameCode) {
+    // Use a timer to delay the state updates
+    Timer(Duration(milliseconds: 500), () async {
+      try {
+        print('Caching providers, mounted: $mounted');
+        final localNotifier = ref.read(localDataNotifierProvider.notifier);
+        final gameStreamNotifier = ref.read(gameStreamProvider.notifier);
 
-    print("before inserting game room");
-    print("gameCode: $gameCode");
-    print("roomName: ${roomNameController.text}");
-    print("selectedPlayerNum: $selectedPlayerNum");
-    print("selectedDuration: ${durationOptions[selectedDuration]}");
-    await supabase.from('game_rooms').insert({
-      'game_code': gameCode,
-      'room_name': roomNameController.text,
-      'players': selectedPlayerNum,
-      'duration': durationOptions[selectedDuration],
+        print('Setting creator, mounted: $mounted');
+        await localNotifier.setIsCreator(true);
+
+        print('Setting game code, mounted: $mounted');
+        await localNotifier.setGameCode(generatedGameCode);
+
+        print('Creating room, mounted: $mounted');
+        await gameStreamNotifier.createGameRoom(
+          generatedGameCode,
+          roomNameController.text,
+          selectedPlayerNum,
+          durationOptions[selectedDuration]!,
+        );
+
+        print('Finished creating room, mounted: $mounted');
+      } catch (error) {
+        print('Background state update error: $error');
+      }
     });
-    print("after inserting game room");
   }
 }

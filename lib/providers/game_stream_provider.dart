@@ -21,4 +21,13 @@ class GameStream extends _$GameStream {
         .update({'started': true})
         .eq('game_code', gameCode);
   }
+
+  Future<void> createGameRoom(String gameCode, String roomName, int players, int duration) async {
+    await supabase.from('game_rooms').insert({
+      'game_code': gameCode,
+      'room_name': roomName,
+      'players': players,
+      'duration': duration,
+    });
+  }
 }

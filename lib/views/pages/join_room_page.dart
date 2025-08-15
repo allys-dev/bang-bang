@@ -1,9 +1,10 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/providers/local_data_notifier_provider.dart';
-import 'package:bang_bang/views/pages/get_ready_page.dart';
+import 'package:bang_bang/routes/route_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class JoinRoomPage extends ConsumerStatefulWidget {
   const JoinRoomPage({super.key});
@@ -51,13 +52,7 @@ class _JoinRoomPageState extends ConsumerState<JoinRoomPage> {
                       .setGameCode(gameCodeController.text);
 
                   if (context.mounted) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return GetReadyPage();
-                        },
-                      ),
-                    );
+                    context.pushNamed(RouteConstants.getReadyPage);
                   }
                 } else {
                   if (context.mounted) {

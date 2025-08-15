@@ -1,7 +1,7 @@
 import 'package:bang_bang/data/constants.dart';
-import 'package:bang_bang/views/pages/how_to_page.dart';
-import 'package:bang_bang/views/pages/play_page.dart';
+import 'package:bang_bang/routes/route_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -23,28 +23,12 @@ class LandingPage extends StatelessWidget {
             ),
             SizedBox(height: 60),
             ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return const PlayPage();
-                    },
-                  ),
-                );
-              },
+              onPressed: () => context.pushNamed(RouteConstants.playPage),
               child: Text('PLAY', style: KTextStyle.heading2),
             ),
             SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return const HowToPage();
-                    },
-                  ),
-                );
-              },
+              onPressed: () => context.pushNamed(RouteConstants.howToPage),
               child: Text('HOW TO', style: KTextStyle.heading4),
             ),
           ],

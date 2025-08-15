@@ -1,9 +1,7 @@
 import 'package:bang_bang/data/notifiers.dart';
-import 'package:bang_bang/main.dart';
 import 'package:bang_bang/models/elimination.dart';
 import 'package:bang_bang/providers/elimination_stream_provider.dart';
 import 'package:bang_bang/providers/player_notifier_provider.dart';
-// import 'package:bang_bang/providers/players_stream_provider.dart';
 import 'package:bang_bang/providers/local_data_notifier_provider.dart';
 import 'package:bang_bang/providers/players_stream_provider.dart';
 import 'package:bang_bang/views/pages/how_to_page.dart';
@@ -12,6 +10,7 @@ import 'package:bang_bang/views/pages/scoreboard_page.dart';
 import 'package:bang_bang/widgets/navbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 List<Widget> pages = [MissionPage(), ScoreboardPage(), HowToPage()];
 
@@ -29,19 +28,23 @@ class _GameTreeState extends ConsumerState<GameTree> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(
-      playerNotifierProvider(ref.read(localDataNotifierProvider).playerId),
-    );
-    ref.watch(
-      eliminationStreamProvider(ref.read(localDataNotifierProvider).gameCode),
-    );
+    final localDataAsync = ref.watch(localDataNotifierProvider);
 
-    // ref.read(eliminationStreamProvider(ref.read(localDataNotifierProvider).gameCode)
-    // );
+    if (localDataAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final localData = localDataAsync.value!;
+
+    ref.watch(
+      playerNotifierProvider(localData.playerId),
+    );
+    ref.watch(
+      eliminationStreamProvider(localData.gameCode),
+    );
 
     ref.listen<
       AsyncValue<List<Elimination>>
-    >(eliminationStreamProvider(ref.read(localDataNotifierProvider).gameCode), (
+    >(eliminationStreamProvider(localData.gameCode), (
       previous,
       next,
     ) {
@@ -51,7 +54,7 @@ class _GameTreeState extends ConsumerState<GameTree> {
           for (final elimination in currentEliminations) {
             if (!elimination.attackerSeen &&
                 elimination.attackerId ==
-                    ref.read(localDataNotifierProvider).playerId) {
+                    localData.playerId) {
               if (elimination.targetConfirmation == true) {
                 // Add a point to the attacker
                 ref
@@ -64,7 +67,7 @@ class _GameTreeState extends ConsumerState<GameTree> {
                 ref
                     .read(
                       playersStreamProvider(
-                        ref.read(localDataNotifierProvider).gameCode,
+                        localData.gameCode,
                       ).notifier,
                     )
                     .transferMission(
@@ -75,7 +78,7 @@ class _GameTreeState extends ConsumerState<GameTree> {
                 ref
                     .read(
                       playerNotifierProvider(
-                        ref.read(localDataNotifierProvider).playerId,
+                        localData.playerId,
                       ).notifier,
                     )
                     .setWaiting(false);
@@ -84,18 +87,18 @@ class _GameTreeState extends ConsumerState<GameTree> {
                 ref
                     .read(
                       eliminationStreamProvider(
-                        ref.read(localDataNotifierProvider).gameCode,
+                        localData.gameCode,
                       ).notifier,
                     )
                     .setAttackerSeen(elimination.id);
               } else if (elimination.targetConfirmation == false) {
-                _showDeniedDialog(elimination);
+                _showDeniedDialog(elimination, localData);
 
                 // Mark the elimination as seen
                 ref
                     .read(
                       eliminationStreamProvider(
-                        ref.read(localDataNotifierProvider).gameCode,
+                        localData.gameCode,
                       ).notifier,
                     )
                     .setAttackerSeen(elimination.id);
@@ -107,7 +110,7 @@ class _GameTreeState extends ConsumerState<GameTree> {
             }
 
             if (elimination.targetId ==
-                    ref.read(localDataNotifierProvider).playerId &&
+                    localData.playerId &&
                 elimination.targetConfirmation == null) {
               // Handle the responder's actions if needed
               print(
@@ -116,7 +119,7 @@ class _GameTreeState extends ConsumerState<GameTree> {
 
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 print("Showing elimination dialog for: ${elimination.id}");
-                _showEliminationDialog(elimination);
+                _showEliminationDialog(elimination, localData);
               });
             }
           }
@@ -142,7 +145,7 @@ class _GameTreeState extends ConsumerState<GameTree> {
     );
   }
 
-  void _showDeniedDialog(Elimination elimination) {
+  void _showDeniedDialog(Elimination elimination, LocalData localData) {
     showDialog(
       context: context,
       builder:
@@ -157,11 +160,11 @@ class _GameTreeState extends ConsumerState<GameTree> {
                   ref
                       .read(
                         playerNotifierProvider(
-                          ref.read(localDataNotifierProvider).playerId,
+                          localData.playerId,
                         ).notifier,
                       )
                       .setWaiting(false);
-                  Navigator.of(context).pop();
+                  context.pop();
                 },
                 child: Text('OK'),
               ),
@@ -170,7 +173,7 @@ class _GameTreeState extends ConsumerState<GameTree> {
     );
   }
 
-  void _showEliminationDialog(Elimination elimination) {
+  void _showEliminationDialog(Elimination elimination, LocalData localData) {
     showDialog(
       context: context,
       builder:
@@ -185,7 +188,7 @@ class _GameTreeState extends ConsumerState<GameTree> {
                   ref
                       .read(
                         eliminationStreamProvider(
-                          ref.read(localDataNotifierProvider).gameCode,
+                          localData.gameCode,
                         ).notifier,
                       )
                       .setTargetConfirmation(elimination.id, true);
@@ -196,7 +199,7 @@ class _GameTreeState extends ConsumerState<GameTree> {
                       )
                       .setEliminated();
 
-                  Navigator.of(context).pop();
+                  context.pop();
                 },
                 child: Text('YES'),
               ),
@@ -205,11 +208,11 @@ class _GameTreeState extends ConsumerState<GameTree> {
                   ref
                       .read(
                         eliminationStreamProvider(
-                          ref.read(localDataNotifierProvider).gameCode,
+                          localData.gameCode,
                         ).notifier,
                       )
                       .setTargetConfirmation(elimination.id, false);
-                  Navigator.of(context).pop();
+                  context.pop();
                 },
                 child: Text('NO'),
               ),

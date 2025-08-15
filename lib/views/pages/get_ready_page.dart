@@ -1,9 +1,10 @@
 import 'package:bang_bang/data/constants.dart';
 import 'package:bang_bang/main.dart';
 import 'package:bang_bang/providers/local_data_notifier_provider.dart';
-import 'package:bang_bang/views/pages/lobby_page.dart';
+import 'package:bang_bang/routes/route_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class GetReadyPage extends ConsumerStatefulWidget {
   const GetReadyPage({super.key});
@@ -19,6 +20,13 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localDataAsync = ref.watch(localDataNotifierProvider);
+
+    if (localDataAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final localData = localDataAsync.value!;
+
     print("GetReadyPage build called");
     return Scaffold(
       appBar: AppBar(),
@@ -72,15 +80,9 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
             SizedBox(height: 80),
             ElevatedButton(
               onPressed: () {
-                createPlayer();
+                createPlayer(localData);
 
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return LobbyPage();
-                    },
-                  ),
-                );
+                context.pushNamed(RouteConstants.lobbyPage);
               },
               child: Text('BEGIN', style: KTextStyle.heading1),
             ),
@@ -90,7 +92,7 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
     );
   }
 
-  void createPlayer() async {
+  void createPlayer(LocalData localData) async {
     print("before inserting player");
     await supabase.from('players').insert({
       'player_name': nameController.text,
@@ -98,8 +100,8 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
       'object': objectController.text,
       'location': locationController.text,
       'score': 0,
-      'game_code': ref.read(localDataNotifierProvider).gameCode,
-      'is_creator': ref.read(localDataNotifierProvider).isCreator,
+      'game_code': localData.gameCode,
+      'is_creator': localData.isCreator,
     });
 
     //Print name
@@ -110,7 +112,7 @@ class _GetReadyPageState extends ConsumerState<GetReadyPage> {
         await supabase
             .from('players')
             .select()
-            .eq('game_code', ref.read(localDataNotifierProvider).gameCode)
+            .eq('game_code', localData.gameCode)
             .eq('player_name', nameController.text)
             .single();
 

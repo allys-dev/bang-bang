@@ -6,7 +6,7 @@ part of 'elimination_stream_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$eliminationStreamHash() => r'ca45a81d3b84dc059c847ac312620cd0a3d368d4';
+String _$eliminationStreamHash() => r'ed5e0bce6ba327d45189dbaf012b70496066e6b9';
 
 /// Copied from Dart SDK
 class _SystemHash {
